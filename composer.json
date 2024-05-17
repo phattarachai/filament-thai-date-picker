@@ -1,7 +1,6 @@
 {
     "name": "phattarachai/filament-thai-date-picker",
     "description": "FilamentPHP Thai Date Picker Form Component",
-    "version": "1.0.1",
     "keywords": [
         "phattarachai",
         "laravel",
