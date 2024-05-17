@@ -22,7 +22,7 @@ composer require phattarachai/filament-thai-date-picker
 php artisan filament:upgrade 
 ```
 
-## วิธีใช้งาน
+## วิธีใช้งาน ThaiDatePicker
 
 ใช้เหมือน DatePicker ปกติ แต่เรียกใช้ class ThaiDatePicker แทน
 
@@ -33,6 +33,59 @@ ThaiDatePicker::make('order_date')
     ->label('วันที่สั่งซื้อ')
     ->suffixIcon('heroicon-o-calendar')
 
+```
+
+## การแสดงวันที่ภาษาไทยใน Table Column
+
+นอกจาก Datepicker แล้ว package นี้เพิ่ม macro method `thaidate()` สำหรับการ format การแสดงผลวันที่เพื่อให้แสดงผลเป็นปี
+พ.ศ. ภาษาไทย ได้เลย
+
+```php
+use Filament\Tables;
+
+Tables\Columns\TextColumn::make('order_date')
+    ->label('วันที่')
+    ->thaidate()
+    // สามารถระบุ date format ได้เหมือน function date_format ของ PHP
+    // default format เป็น d M y 
+    // เช่น 18 พ.ค. 67
+
+```
+
+ถ้าเป็น วันที่และเวลาใช้ method `thaidatetime()`
+
+```php
+use Filament\Tables;
+
+Tables\Columns\TextColumn::make('created_at')
+    ->label('วันที่สร้าง')
+    ->thaidatetime()
+    // default format เป็น d M y H:i 
+    // เช่น 18 พ.ค. 67 12:00
+
+```
+
+## การแสดงวันที่ภาษาไทยใน Infolist
+
+เช่นเดียวกับ TableColumn ใน package นี้เพิ่ม method `thaidate()` และ `thaidatetime()`
+สำหรับช่วยการแสดงผลคอลัมน์วันที่ปี พ.ศ. ภาษาไทย
+
+```php
+use Filament\Infolists\Components\TextEntry;
+
+TextEntry::make('order_date')
+    ->label('วันที่สั่งซื้อ')
+    ->thaidate(),
+    // 18 พ.ค. 67
+```
+
+```php
+use Filament\Infolists\Components\TextEntry;
+
+TextEntry::make('created_at')
+    ->label('วันที่สร้าง')
+    ->thaidatetime(),
+    // 18 พ.ค. 67 12:05
 ```
 
 ## ผู้พัฒนา

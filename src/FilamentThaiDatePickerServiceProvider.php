@@ -47,7 +47,7 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
 
             $this->isDate = true;
 
-            $format ??= Table::$defaultDateDisplayFormat;
+            $format ??= 'j M y';
 
             $this->formatStateUsing(static function (TextColumn $column, $state) use ($format, $timezone): ?string {
                 if (blank($state)) {
@@ -65,7 +65,7 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
         TextColumn::macro('thaidatetime', function (?string $format = null, ?string $timezone = null) {
 
             $this->isDateTime = true;
-            $format ??= Table::$defaultDateTimeDisplayFormat;
+            $format ??= 'j M y H:i';
 
             return $this->thaidate($format, $timezone);
         });
