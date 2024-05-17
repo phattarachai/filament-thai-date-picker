@@ -10,6 +10,10 @@
 
 ![Thai Date Picker](thai-date-picker.png)
 
+## วิธีติดตั้ง
+
+publish
+
 ## วิธีใช้งาน
 
 ใช้เหมือน DatePicker ปกติ แต่เรียกใช้ class ThaiDatePicker แทน
@@ -18,7 +22,8 @@
 use Phattarachai/FilamentphpThaiDatePicker;
 
 ThaiDatePicker::make('order_date')
-    ->label('วันที่สั่งซื้อ'),
+    ->label('วันที่สั่งซื้อ')
+    ->suffixIcon('heroicon-o-calendar')
 
 ```
 

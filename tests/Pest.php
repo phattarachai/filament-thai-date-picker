@@ -1,5 +1,5 @@
 <?php
 
-use Phattarachai\FilamentphpThaiDatePicker\Tests\TestCase;
+use Phattarachai\FilamentThaiDatePicker\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);

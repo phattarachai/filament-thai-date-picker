@@ -1,6 +1,6 @@
 <?php
 
-namespace Phattarachai\FilamentphpThaiDatePicker;
+namespace Phattarachai\FilamentThaiDatePicker;
 
 
 use Filament\Forms\Components\DatePicker;
@@ -8,7 +8,7 @@ use Filament\Forms\Components\DatePicker;
 class ThaiDatePicker extends DatePicker
 {
 
-    protected string $view = 'filamentphp-thai-date-picker::date-time-picker';
+    protected string $view = 'filament-thai-date-picker::date-time-picker';
 
     protected function setUp(): void
     {

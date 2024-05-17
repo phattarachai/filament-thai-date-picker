@@ -1,16 +1,16 @@
 {
-    "name": "phattarachai/filamentphp-thai-date-picker",
+    "name": "phattarachai/filament-thai-date-picker",
     "description": "FilamentPHP Thai Date Picker Form Component",
     "version": "1.0.0",
     "keywords": [
         "phattarachai",
         "laravel",
-        "filamentphp-thai-date-picker"
+        "filament-thai-date-picker"
     ],
-    "homepage": "https://github.com/phattarachai/filamentphp-thai-date-picker",
+    "homepage": "https://github.com/phattarachai/filament-thai-date-picker",
     "support": {
-        "issues": "https://github.com/phattarachai/filamentphp-thai-date-picker/issues",
-        "source": "https://github.com/phattarachai/filamentphp-thai-date-picker"
+        "issues": "https://github.com/phattarachai/filament-thai-date-picker/issues",
+        "source": "https://github.com/phattarachai/filament-thai-date-picker"
     },
     "license": "MIT",
     "authors": [
@@ -36,12 +36,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Phattarachai\\FilamentphpThaiDatePicker\\": "src/"
+            "Phattarachai\\FilamentThaiDatePicker\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Phattarachai\\FilamentphpThaiDatePicker\\Tests\\": "tests/"
+            "Phattarachai\\FilamentThaiDatePicker\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -59,7 +59,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Phattarachai\\FilamentphpThaiDatePicker\\FilamentphpThaiDatePickerServiceProvider"
+                "Phattarachai\\FilamentThaiDatePicker\\FilamentphpThaiDatePickerServiceProvider"
             ]
         }
     },

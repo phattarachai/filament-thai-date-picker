@@ -68,7 +68,7 @@
                 @else
                     ax-load
                 @endif
-                ax-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('date-time-picker', 'phattarachai/filamentphp-thai-date-picker') }}"
+                ax-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('date-time-picker', 'phattarachai/filament-thai-date-picker') }}"
                 x-data="dateTimePickerFormComponent({
                             displayFormat:
                                 '{{ convert_date_format($getDisplayFormat())->to('day.js') }}',
@@ -295,7 +295,7 @@
     @if ($datalistOptions)
         <datalist id="{{ $id }}-list">
             @foreach ($datalistOptions as $option)
-                <option value="{{ $option }}" />
+                <option value="{{ $option }}"/>
             @endforeach
         </datalist>
     @endif

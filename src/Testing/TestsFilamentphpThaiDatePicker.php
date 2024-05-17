@@ -1,13 +1,13 @@
 <?php
 
-namespace Phattarachai\FilamentphpThaiDatePicker\Testing;
+namespace Phattarachai\FilamentThaiDatePicker\Testing;
 
 use Livewire\Features\SupportTesting\Testable;
 
 /**
  * @mixin Testable
  */
-class TestsFilamentphpThaiDatePicker
+class TestsFilamentThaiDatePicker
 {
     //
 }
