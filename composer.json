@@ -59,7 +59,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Phattarachai\\FilamentThaiDatePicker\\FilamentphpThaiDatePickerServiceProvider"
+                "Phattarachai\\FilamentThaiDatePicker\\FilamentThaiDatePickerServiceProvider"
             ]
         }
     },
