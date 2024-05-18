@@ -35,6 +35,15 @@ ThaiDatePicker::make('order_date')
 
 ```
 
+โดยปี พ.ศ.จะใช้สำหรับการแสดงผลเท่านั้นเวลาใช้งาน state เพื่อบันทึกลงฐานข้อมูลจะได้เป็นปี ค.ศ. ตามปกติ
+
+```php
+
+$data = $this->form->getState();
+// $data['order_date'] = '2024-05-17'
+
+```
+
 ## การแสดงวันที่ภาษาไทยใน Table Column
 
 นอกจาก Datepicker แล้ว package นี้เพิ่ม macro method `thaidate()` สำหรับการ format การแสดงผลวันที่เพื่อให้แสดงผลเป็นปี
