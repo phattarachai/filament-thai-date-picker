@@ -55,7 +55,7 @@ export default function dateTimePickerFormComponent({
         months: [],
 
         init: function () {
-            dayjs.locale(locales[locale] ?? locales['en'])
+            //dayjs.locale(locales[locale] ?? locales['en'])
 
             this.focusedDate = dayjs().tz(timezone)
 
@@ -522,4 +522,5 @@ export default function dateTimePickerFormComponent({
 
 const locales = {
     en: require('dayjs/locale/en'),
+    th: require('dayjs/locale/th'),
 }

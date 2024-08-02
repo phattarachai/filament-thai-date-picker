@@ -15,6 +15,7 @@ class ThaiDatePicker extends DatePicker
         parent::setUp();
 
         $this->native(false)
+            ->locale('th')
             ->time(false);
     }
 
