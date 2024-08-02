@@ -1,10 +1,12 @@
 import dayjs from 'dayjs/esm'
+import advancedFormat from 'dayjs/plugin/advancedFormat'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import localeData from 'dayjs/plugin/localeData'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 import th from 'dayjs/locale/th'
 
+dayjs.extend(advancedFormat)
 dayjs.extend(customParseFormat)
 dayjs.extend(localeData)
 dayjs.extend(timezone)
@@ -17,7 +19,7 @@ export default function dateTimePickerFormComponent({
                                                         displayFormat,
                                                         firstDayOfWeek,
                                                         isAutofocused,
-                                                        hasTime,
+                                                        locale,
                                                         shouldCloseOnDateSelection,
                                                         state,
                                                     }) {
@@ -35,6 +37,7 @@ export default function dateTimePickerFormComponent({
         focusedMonth: null,
 
         focusedYear: null,
+
         focusedThaiYear: null,
 
         hour: null,
@@ -47,13 +50,13 @@ export default function dateTimePickerFormComponent({
 
         state,
 
-        hasTime,
-
         dayLabels: [],
 
         months: [],
 
         init: function () {
+            dayjs.locale(locales[locale] ?? locales['en'])
+
             this.focusedDate = dayjs().tz(timezone)
 
             let date =

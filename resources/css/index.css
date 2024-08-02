@@ -1,1 +1,4 @@
-@import '../../vendor/filament/filament/resources/css/theme.css';
+input::-webkit-datetime-edit {
+    display: block;
+    padding: 0;
+}
