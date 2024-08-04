@@ -96,7 +96,9 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
             $this->isDateTime = true;
             $format ??= Infolist::$defaultDateTimeDisplayFormat;
 
-            return $this->thaidate($format, $timezone);
+            $this->thaidate($format, $timezone);
+
+            return $this;
         });
 
     }
