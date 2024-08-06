@@ -48,8 +48,16 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
 
             $format ??= 'j M y';
 
+            if ($default) {
+                $this->default($default);
+            }
+
             $this->formatStateUsing(static function (TextColumn $column, $state) use ($format, $timezone, $default): ?string {
                 if (blank($state)) {
+                    return $default;
+                }
+
+                if ($state === $default) {
                     return $default;
                 }
 
@@ -78,8 +86,16 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
 
             $format ??= Infolist::$defaultDateDisplayFormat;
 
+            if ($default) {
+                $this->default($default);
+            }
+
             $this->formatStateUsing(static function (TextEntry $component, $state) use ($format, $timezone, $default): ?string {
                 if (blank($state)) {
+                    return $default;
+                }
+
+                if ($state === $default) {
                     return $default;
                 }
 
