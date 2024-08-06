@@ -42,15 +42,15 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
 
     public function configureTableColumns(): void
     {
-        TextColumn::macro('thaidate', function (?string $format = null, ?string $timezone = null) {
+        TextColumn::macro('thaidate', function (?string $format = null, ?string $timezone = null, ?string $default = null) {
 
             $this->isDate = true;
 
             $format ??= 'j M y';
 
-            $this->formatStateUsing(static function (TextColumn $column, $state) use ($format, $timezone): ?string {
+            $this->formatStateUsing(static function (TextColumn $column, $state) use ($format, $timezone, $default): ?string {
                 if (blank($state)) {
-                    return null;
+                    return $default;
                 }
 
                 return Carbon::parse($state)
@@ -61,26 +61,26 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
             return $this;
         });
 
-        TextColumn::macro('thaidatetime', function (?string $format = null, ?string $timezone = null) {
+        TextColumn::macro('thaidatetime', function (?string $format = null, ?string $timezone = null, ?string $default = null) {
 
             $this->isDateTime = true;
             $format ??= 'j M y H:i';
 
-            return $this->thaidate($format, $timezone);
+            return $this->thaidate($format, $timezone, $default);
         });
     }
 
     public function configureInfolists(): void
     {
-        TextEntry::macro('thaidate', function (?string $format = null, ?string $timezone = null) {
+        TextEntry::macro('thaidate', function (?string $format = null, ?string $timezone = null, ?string $default = null) {
 
             $this->isDate = true;
 
             $format ??= Infolist::$defaultDateDisplayFormat;
 
-            $this->formatStateUsing(static function (TextEntry $component, $state) use ($format, $timezone): ?string {
+            $this->formatStateUsing(static function (TextEntry $component, $state) use ($format, $timezone, $default): ?string {
                 if (blank($state)) {
-                    return null;
+                    return $default;
                 }
 
                 return Carbon::parse($state)
@@ -91,12 +91,12 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
             return $this;
         });
 
-        TextEntry::macro('thaidatetime', function (?string $format = null, ?string $timezone = null) {
+        TextEntry::macro('thaidatetime', function (?string $format = null, ?string $timezone = null, ?string $default = null) {
 
             $this->isDateTime = true;
             $format ??= Infolist::$defaultDateTimeDisplayFormat;
 
-            $this->thaidate($format, $timezone);
+            $this->thaidate($format, $timezone, $default);
 
             return $this;
         });

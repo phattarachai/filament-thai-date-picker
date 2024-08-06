@@ -44,9 +44,44 @@ $data = $this->form->getState();
 
 ```
 
+## การแสดงวันที่ภาษาไทยใน Infolist
+
+นอกจาก Datepicker แล้วใน package นี้เพิ่ม method `thaidate()` และ `thaidatetime()`
+สำหรับช่วยการแสดงผล Infolist วันที่ปี พ.ศ. ภาษาไทย
+
+```php
+use Filament\Infolists\Components\TextEntry;
+
+TextEntry::make('order_date')
+    ->label('วันที่สั่งซื้อ')
+    ->thaidate(),
+    // 18 พ.ค. 67
+```
+
+```php
+use Filament\Infolists\Components\TextEntry;
+
+TextEntry::make('created_at')
+    ->label('วันที่สร้าง')
+    ->thaidatetime(),
+    // 18 พ.ค. 67 12:05
+```
+
+ถ้า field วันที่ เป็นค่า null ได้แล้วแล้วต้องการให้แสดงค่า default สามารถส่ง parameter default ไปใน function ได้
+
+```php
+use Filament\Infolists\Components\TextEntry;
+
+TextEntry::make('confirm_date')
+    ->label('วันที่ยืนยัน')
+    ->thaidate(default: '-'),
+    // -
+```
+
 ## การแสดงวันที่ภาษาไทยใน Table Column
 
-นอกจาก Datepicker แล้ว package นี้เพิ่ม macro method `thaidate()` สำหรับการ format การแสดงผลวันที่เพื่อให้แสดงผลเป็นปี
+เช่นเดียวกับ Infolist package นี้เพิ่ม macro method `thaidate()` สำหรับการ format
+การแสดงผลคอลัมน์วันที่เพื่อให้แสดงผลเป็นปี
 พ.ศ. ภาษาไทย ได้เลย
 
 ```php
@@ -72,29 +107,6 @@ Tables\Columns\TextColumn::make('created_at')
     // default format เป็น d M y H:i 
     // เช่น 18 พ.ค. 67 12:00
 
-```
-
-## การแสดงวันที่ภาษาไทยใน Infolist
-
-เช่นเดียวกับ TableColumn ใน package นี้เพิ่ม method `thaidate()` และ `thaidatetime()`
-สำหรับช่วยการแสดงผลคอลัมน์วันที่ปี พ.ศ. ภาษาไทย
-
-```php
-use Filament\Infolists\Components\TextEntry;
-
-TextEntry::make('order_date')
-    ->label('วันที่สั่งซื้อ')
-    ->thaidate(),
-    // 18 พ.ค. 67
-```
-
-```php
-use Filament\Infolists\Components\TextEntry;
-
-TextEntry::make('created_at')
-    ->label('วันที่สร้าง')
-    ->thaidatetime(),
-    // 18 พ.ค. 67 12:05
 ```
 
 ## ผู้พัฒนา
