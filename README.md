@@ -27,10 +27,21 @@ php artisan filament:upgrade
 ใช้เหมือน DatePicker ปกติ แต่เรียกใช้ class ThaiDatePicker แทน
 
 ```php
-use Phattarachai/FilamentThaiDatePicker;
+use Phattarachai\FilamentThaiDatePicker\ThaiDatePicker;
 
 ThaiDatePicker::make('order_date')
     ->label('วันที่สั่งซื้อ')
+    ->suffixIcon('heroicon-o-calendar')
+
+```
+
+แบบ มีเวลา
+
+```php
+use Phattarachai\FilamentThaiDatePicker\ThaiDateTimePicker;
+
+ThaiDateTimePicker::make('transfer_at')
+    ->label('เวลาที่โอน')
     ->suffixIcon('heroicon-o-calendar')
 
 ```

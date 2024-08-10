@@ -22,6 +22,7 @@ export default function dateTimePickerFormComponent({
                                                         locale,
                                                         shouldCloseOnDateSelection,
                                                         state,
+                                                        hasTime
                                                     }) {
     const timezone = dayjs.tz.guess()
 
@@ -450,15 +451,14 @@ export default function dateTimePickerFormComponent({
 
         setDisplayText: function () {
 
-            // if (this.hasTime) {
-            //     displayText += this.getSelectedDate()
-            //         ? this.getSelectedDate().format(' HH:mm')
-            //         : ''
-            // }
-
             this.displayText = this.getSelectedDate()
                 ? this.getSelectedDate().format('D MMM ') + (this.getSelectedDate().year() + 543).toString().substring(2, 4)
                 : ''
+
+            if (hasTime) {
+                this.displayText += this.getSelectedDate().format(' HH:mm')
+            }
+
         },
 
         setMonths: function () {
