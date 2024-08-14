@@ -67,7 +67,7 @@
             <div
                 x-ignore
                 @if (FilamentView::hasSpaMode())
-                    ax-load="visible"
+                    {{-- format-ignore-start --}}ax-load="visible || event (ax-modal-opened)"{{-- format-ignore-end --}}
                 @else
                     ax-load
                 @endif
@@ -90,13 +90,9 @@
                         ->class(['fi-fo-date-time-picker'])
                 }}
             >
-                <input x-ref="maxDate"
-                       type="hidden"
-                       value="{{ $maxDate }}"/>
+                <input x-ref="maxDate" type="hidden" value="{{ $maxDate }}" />
 
-                <input x-ref="minDate"
-                       type="hidden"
-                       value="{{ $minDate }}"/>
+                <input x-ref="minDate" type="hidden" value="{{ $minDate }}" />
 
                 <input
                     x-ref="disabledDates"
@@ -297,7 +293,7 @@
     @if ($datalistOptions)
         <datalist id="{{ $id }}-list">
             @foreach ($datalistOptions as $option)
-                <option value="{{ $option }}"/>
+                <option value="{{ $option }}" />
             @endforeach
         </datalist>
     @endif

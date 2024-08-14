@@ -1,17 +1,17 @@
 import dayjs from 'dayjs/esm'
 import advancedFormat from 'dayjs/plugin/advancedFormat'
+import buddhistEra from 'dayjs/plugin/buddhistEra'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import localeData from 'dayjs/plugin/localeData'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
-import th from 'dayjs/locale/th'
 
 dayjs.extend(advancedFormat)
+dayjs.extend(buddhistEra)
 dayjs.extend(customParseFormat)
 dayjs.extend(localeData)
 dayjs.extend(timezone)
 dayjs.extend(utc)
-dayjs.locale(th)
 
 window.dayjs = dayjs
 
@@ -56,7 +56,7 @@ export default function dateTimePickerFormComponent({
         months: [],
 
         init: function () {
-            //dayjs.locale(locales[locale] ?? locales['en'])
+            dayjs.locale(locales[locale] ?? locales['th'])
 
             this.focusedDate = dayjs().tz(timezone)
 
