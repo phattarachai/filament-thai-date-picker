@@ -15,7 +15,7 @@ dayjs.extend(utc)
 
 window.dayjs = dayjs
 
-export default function dateTimePickerFormComponent({
+export default function thaiDateTimePickerFormComponent({
                                                         displayFormat,
                                                         firstDayOfWeek,
                                                         isAutofocused,
