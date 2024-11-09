@@ -76,6 +76,10 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
 
             return $this->thaidate($format, $timezone, $default);
         });
+
+        TextColumn::macro('timeDescription', function (?string $format = 'H:i') {
+            return $this->description(fn($state) => $state?->format($format));
+        });
     }
 
     public function configureInfolists(): void
