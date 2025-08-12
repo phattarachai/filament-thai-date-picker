@@ -3,7 +3,7 @@
 namespace Phattarachai\FilamentThaiDatePicker;
 
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Infolist;
+use Filament\Schemas\Schema;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Tables\Columns\TextColumn;
@@ -88,7 +88,7 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
 
             $this->isDate = true;
 
-            $format ??= Infolist::$defaultDateDisplayFormat;
+            $format ??= Schema::$defaultDateDisplayFormat;
 
             if ($default) {
                 $this->default($default);
@@ -114,7 +114,7 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
         TextEntry::macro('thaidatetime', function (?string $format = null, ?string $timezone = null, ?string $default = null) {
 
             $this->isDateTime = true;
-            $format ??= Infolist::$defaultDateTimeDisplayFormat;
+            $format ??= Schema::$defaultDateTimeDisplayFormat;
 
             $this->thaidate($format, $timezone, $default);
 
