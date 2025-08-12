@@ -3,7 +3,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/phattarachai/filament-thai-date-picker.svg?style=flat-square)](https://packagist.org/packages/phattarachai/filament-thai-date-picker)
 [![Total Downloads](https://img.shields.io/packagist/dt/phattarachai/filament-thai-date-picker.svg?style=flat-square)](https://packagist.org/packages/phattarachai/filament-thai-date-picker)
 
-ปฏิทิน Thai Date Picker สำหรับ Filament 3 Form Component
+ปฏิทิน Thai Date Picker สำหรับ Filament 3 - 4 Form Component
 วัน/เดือน/ปีที่แสดงใน Form เป็นภาษาไทย แต่เก็บเข้า Model เป็นปี ค.ศ.ตามปกติ
 
 ![Thai Date Picker](thai-date-picker.png)
@@ -15,6 +15,15 @@ Run คำสั่ง composer require เพื่อติดตั้ง Pac
 ```bash
 composer require phattarachai/filament-thai-date-picker 
 ```
+
+
+## Version ที่ใช้งานได้
+
+| Filament   | ThaiDatePicker |
+|:-----------|:---------------|
+| 3.x        | 1.x            |
+| 4.x        | 2.x            |
+
 
 ทำการ publish ไฟล์ javascript ถ้าหากไม่ได้ run คำสั่งนี้อยู่แล้วในไฟล์ composer.json "post-autoload-dump"
 
