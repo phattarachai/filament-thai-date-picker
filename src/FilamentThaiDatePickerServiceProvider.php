@@ -88,7 +88,7 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
 
             $this->isDate = true;
 
-            $format ??= $this->getDefaultDateDisplayFormat();
+            $format ??= 'j M y';
 
             if ($default) {
                 $this->default($default);
@@ -114,7 +114,7 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
         TextEntry::macro('thaidatetime', function (?string $format = null, ?string $timezone = null, ?string $default = null) {
 
             $this->isDateTime = true;
-            $format ??= $this->getDefaultDateTimeDisplayFormat();
+            $format ??= 'j M y H:i';
 
             $this->thaidate($format, $timezone, $default);
 
