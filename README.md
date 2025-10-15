@@ -40,12 +40,6 @@ php artisan filament:upgrade
 @source '../../../../vendor/phattarachai/filament-thai-date-picker/resources/views'; 
 ```
 
-
-
-```bash
-php artisan filament:upgrade 
-```
-
 ## วิธีใช้งาน ThaiDatePicker
 
 ใช้เหมือน DatePicker ปกติ แต่เรียกใช้ class ThaiDatePicker แทน
