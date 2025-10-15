@@ -31,6 +31,21 @@ composer require phattarachai/filament-thai-date-picker
 php artisan filament:upgrade 
 ```
 
+สำหรับ Filament Version 4 ให้เพิ่ม @source ใน ไฟล์ theme.css เพื่อให้ tailwind build css ได้
+
+วิธีการใช้งาน custom theme https://filamentphp.com/docs/4.x/styling/overview#creating-a-custom-theme
+
+```css
+/* theme.css */
+@source '../../../../vendor/phattarachai/filament-thai-date-picker/resources/views'; 
+```
+
+
+
+```bash
+php artisan filament:upgrade 
+```
+
 ## วิธีใช้งาน ThaiDatePicker
 
 ใช้เหมือน DatePicker ปกติ แต่เรียกใช้ class ThaiDatePicker แทน
