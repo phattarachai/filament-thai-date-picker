@@ -456,7 +456,9 @@ export default function thaiDateTimePickerFormComponent({
                 : ''
 
             if (hasTime) {
-                this.displayText += this.getSelectedDate().format(' HH:mm')
+                this.displayText += this.getSelectedDate()
+                    ? this.getSelectedDate().format(' HH:mm')
+                    : ''
             }
 
         },
