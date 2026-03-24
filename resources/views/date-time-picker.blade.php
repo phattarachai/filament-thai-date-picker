@@ -1,7 +1,10 @@
+{{-- Thai DatePicker v2.x: patched from Filament 4's date-time-picker.blade.php --}}
+{{-- Changes marked with "THAI:" comments. --}}
 @php
     use Filament\Support\Facades\FilamentView;
 
     $datalistOptions = $getDatalistOptions();
+    $disabledDates = $getDisabledDates();
     $extraAlpineAttributes = $getExtraAlpineAttributes();
     $hasTime = $hasTime();
     $id = $getId();
@@ -81,6 +84,9 @@
                             shouldCloseOnDateSelection: @js($shouldCloseOnDateSelection()),
                             state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
                         })"
+                {{-- FIX: wire:ignore on outer div to protect Alpine state from Livewire re-renders --}}
+                wire:ignore
+                wire:key="{{ $this->getId() }}.{{ $statePath }}.{{ substr(md5(serialize([$disabledDates, $isDisabled, $maxDate, $minDate, $hasTime])), 0, 16) }}"
                 x-on:keydown.esc="isOpen() && $event.stopPropagation()"
                 {{
                     $attributes
@@ -96,7 +102,7 @@
                 <input
                     x-ref="disabledDates"
                     type="hidden"
-                    value="{{ json_encode($getDisabledDates()) }}"
+                    value="{{ json_encode($disabledDates) }}"
                 />
 
                 <button
@@ -128,7 +134,6 @@
                         @disabled($isDisabled)
                         readonly
                         placeholder="{{ $getPlaceholder() }}"
-                        wire:key="{{ $this->getId() }}.{{ $statePath }}.{{ $field::class }}.display-text"
                         x-model="displayText"
                         @if ($id = $getId()) id="{{ $id }}" @endif
                         @class([
@@ -141,8 +146,6 @@
                     x-ref="panel"
                     x-cloak
                     x-float.placement.bottom-start.offset.flip.shift="{ offset: 8 }"
-                    wire:ignore
-                    wire:key="{{ $this->getId() }}.{{ $statePath }}.{{ $field::class }}.panel"
                     @class([
                         'fi-fo-date-time-picker-panel absolute z-10 rounded-lg bg-white p-4 shadow-lg ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10',
                     ])
@@ -170,6 +173,7 @@
                                     x-model.debounce="focusedYear"
                                     class="w-16 border-none bg-transparent p-0 text-right text-sm text-gray-950 focus:ring-0 dark:text-white"
                                 />
+                                {{-- THAI: Thai year input instead of focusedYear --}}
                                 <input
                                     type="number"
                                     inputmode="numeric"

@@ -1,13 +1,14 @@
+// Thai DatePicker v2.x: based on Filament 4's date-time-picker.js
+// Changes from original marked with "THAI:" comments.
+
 import dayjs from 'dayjs/esm'
-import advancedFormat from 'dayjs/plugin/advancedFormat'
-import buddhistEra from 'dayjs/plugin/buddhistEra'
+import buddhistEra from 'dayjs/plugin/buddhistEra' // THAI: added
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import localeData from 'dayjs/plugin/localeData'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 
-dayjs.extend(advancedFormat)
-dayjs.extend(buddhistEra)
+dayjs.extend(buddhistEra) // THAI: added
 dayjs.extend(customParseFormat)
 dayjs.extend(localeData)
 dayjs.extend(timezone)
@@ -15,15 +16,16 @@ dayjs.extend(utc)
 
 window.dayjs = dayjs
 
+// THAI: renamed from dateTimePickerFormComponent, added hasTime param
 export default function thaiDateTimePickerFormComponent({
-                                                        displayFormat,
-                                                        firstDayOfWeek,
-                                                        isAutofocused,
-                                                        locale,
-                                                        shouldCloseOnDateSelection,
-                                                        state,
-                                                        hasTime
-                                                    }) {
+    displayFormat,
+    firstDayOfWeek,
+    isAutofocused,
+    locale,
+    shouldCloseOnDateSelection,
+    state,
+    hasTime,
+}) {
     const timezone = dayjs.tz.guess()
 
     return {
@@ -39,7 +41,7 @@ export default function thaiDateTimePickerFormComponent({
 
         focusedYear: null,
 
-        focusedThaiYear: null,
+        focusedThaiYear: null, // THAI: added
 
         hour: null,
 
@@ -56,9 +58,15 @@ export default function thaiDateTimePickerFormComponent({
         months: [],
 
         init: function () {
-            dayjs.locale(locales[locale] ?? locales['th'])
+            dayjs.locale(locales[locale] ?? locales['th']) // THAI: default 'th'
 
-            this.focusedDate = dayjs().tz(timezone)
+            // FIX: use $nextTick for proper init timing in modals
+            this.$nextTick(() => {
+                this.focusedDate ??= dayjs().tz(timezone)
+                this.focusedMonth ??= this.focusedDate.month()
+                this.focusedYear ??= this.focusedDate.year()
+                this.focusedThaiYear ??= this.focusedDate.year() + 543 // THAI: added
+            })
 
             let date =
                 this.getSelectedDate() ??
@@ -121,6 +129,7 @@ export default function thaiDateTimePickerFormComponent({
                 this.focusedDate = this.focusedDate.year(year)
             })
 
+            // THAI: added — sync Thai year input → focusedYear
             this.$watch('focusedThaiYear', () => {
                 if (this.focusedThaiYear?.length > 4) {
                     this.focusedThaiYear = this.focusedThaiYear.substring(0, 4)
@@ -133,20 +142,16 @@ export default function thaiDateTimePickerFormComponent({
                     return
                 }
 
-                this.focusedYear = this.focusedThaiYear - 543
-                let year = +this.focusedYear
+                let year = +this.focusedThaiYear - 543
 
                 if (!Number.isInteger(year)) {
                     year = dayjs().tz(timezone).year()
+                    this.focusedThaiYear = year + 543
+                }
 
+                if (this.focusedYear !== year) {
                     this.focusedYear = year
                 }
-
-                if (this.focusedDate.year() === year) {
-                    return
-                }
-
-                this.focusedDate = this.focusedDate.year(year)
             })
 
             this.$watch('focusedDate', () => {
@@ -159,7 +164,12 @@ export default function thaiDateTimePickerFormComponent({
 
                 if (this.focusedYear !== year) {
                     this.focusedYear = year
-                    this.focusedThaiYear = year + 543
+                }
+
+                // THAI: added — keep Thai year in sync
+                let thaiYear = year + 543
+                if (this.focusedThaiYear !== thaiYear) {
+                    this.focusedThaiYear = thaiYear
                 }
 
                 this.setupDaysGrid()
@@ -418,8 +428,10 @@ export default function thaiDateTimePickerFormComponent({
 
         togglePanelVisibility: function () {
             if (!this.isOpen()) {
+                // FIX: preserve current focusedDate when opening panel
                 this.focusedDate =
                     this.getSelectedDate() ??
+                    this.focusedDate ??
                     this.getMinDate() ??
                     dayjs().tz(timezone)
 
@@ -443,24 +455,17 @@ export default function thaiDateTimePickerFormComponent({
             }
         },
 
-        // setDisplayText: function () {
-        //     this.displayText = this.getSelectedDate()
-        //         ? this.getSelectedDate().format(displayFormat)
-        //         : ''
-        // },
-
+        // THAI: modified — display Buddhist Era format
         setDisplayText: function () {
-
-            this.displayText = this.getSelectedDate()
-                ? this.getSelectedDate().format('D MMM ') + (this.getSelectedDate().year() + 543).toString().substring(2, 4)
-                : ''
-
-            if (hasTime) {
-                this.displayText += this.getSelectedDate()
-                    ? this.getSelectedDate().format(' HH:mm')
-                    : ''
+            const date = this.getSelectedDate()
+            if (!date) {
+                this.displayText = ''
+                return
             }
 
+            this.displayText = hasTime
+                ? date.format('D MMM BB HH:mm')
+                : date.format('D MMM BB')
         },
 
         setMonths: function () {
