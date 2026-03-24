@@ -129,29 +129,21 @@ export default function thaiDateTimePickerFormComponent({
                 this.focusedDate = this.focusedDate.year(year)
             })
 
-            // THAI: added — sync Thai year input → focusedYear
+            // THAI: added — sync Thai year input → focusedDate directly
             this.$watch('focusedThaiYear', () => {
-                if (this.focusedThaiYear?.length > 4) {
-                    this.focusedThaiYear = this.focusedThaiYear.substring(0, 4)
-                }
+                let thaiYear = +this.focusedThaiYear
 
-                if (
-                    !this.focusedThaiYear ||
-                    this.focusedThaiYear?.length !== 4
-                ) {
+                if (!Number.isInteger(thaiYear) || thaiYear < 1000 || thaiYear > 9999) {
                     return
                 }
 
-                let year = +this.focusedThaiYear - 543
+                let year = thaiYear - 543
 
-                if (!Number.isInteger(year)) {
-                    year = dayjs().tz(timezone).year()
-                    this.focusedThaiYear = year + 543
+                if (this.focusedDate.year() === year) {
+                    return
                 }
 
-                if (this.focusedYear !== year) {
-                    this.focusedYear = year
-                }
+                this.focusedDate = this.focusedDate.year(year)
             })
 
             this.$watch('focusedDate', () => {
