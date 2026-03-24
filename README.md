@@ -3,41 +3,31 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/phattarachai/filament-thai-date-picker.svg?style=flat-square)](https://packagist.org/packages/phattarachai/filament-thai-date-picker)
 [![Total Downloads](https://img.shields.io/packagist/dt/phattarachai/filament-thai-date-picker.svg?style=flat-square)](https://packagist.org/packages/phattarachai/filament-thai-date-picker)
 
-ปฏิทิน Thai Date Picker สำหรับ Filament 3 - 4 Form Component
-วัน/เดือน/ปีที่แสดงใน Form เป็นภาษาไทย แต่เก็บเข้า Model เป็นปี ค.ศ.ตามปกติ
+ปฏิทิน Thai Date Picker สำหรับ Filament Form Component
+วัน/เดือน/ปีที่แสดงใน Form เป็นภาษาไทย (พ.ศ.) แต่เก็บเข้า Model เป็นปี ค.ศ.ตามปกติ
 
 ![Thai Date Picker](thai-date-picker.png)
+
+## Version ที่รองรับ
+
+| Filament   | ThaiDatePicker | สถานะ          |
+|:-----------|:---------------|:---------------|
+| 3.x        | 1.x            | ไม่พัฒนาต่อแล้ว |
+| 4.x        | 2.x            | ไม่พัฒนาต่อแล้ว |
+| 5.x        | 3.x            | เวอร์ชันปัจจุบัน |
 
 ## วิธีติดตั้ง
 
 Run คำสั่ง composer require เพื่อติดตั้ง Package
 
 ```bash
-composer require phattarachai/filament-thai-date-picker 
+composer require phattarachai/filament-thai-date-picker
 ```
 
-
-## Version ที่ใช้งานได้
-
-| Filament   | ThaiDatePicker |
-|:-----------|:---------------|
-| 3.x        | 1.x            |
-| 4.x        | 2.x            |
-
-
-ทำการ publish ไฟล์ javascript ถ้าหากไม่ได้ run คำสั่งนี้อยู่แล้วในไฟล์ composer.json "post-autoload-dump"
+ทำการ publish ไฟล์ javascript (ถ้าหากไม่ได้ run คำสั่งนี้อยู่แล้วในไฟล์ composer.json `post-autoload-dump`)
 
 ```bash
-php artisan filament:upgrade 
-```
-
-สำหรับ Filament Version 4 ให้เพิ่ม @source ใน ไฟล์ theme.css เพื่อให้ tailwind build css ได้
-
-วิธีการใช้งาน custom theme https://filamentphp.com/docs/4.x/styling/overview#creating-a-custom-theme
-
-```css
-/* theme.css */
-@source '../../../../vendor/phattarachai/filament-thai-date-picker/resources/views'; 
+php artisan filament:upgrade
 ```
 
 ## วิธีใช้งาน ThaiDatePicker
@@ -64,7 +54,7 @@ ThaiDateTimePicker::make('transfer_at')
 
 ```
 
-โดยปี พ.ศ.จะใช้สำหรับการแสดงผลเท่านั้นเวลาใช้งาน state เพื่อบันทึกลงฐานข้อมูลจะได้เป็นปี ค.ศ. ตามปกติ
+โดยปี พ.ศ.จะใช้สำหรับการแสดงผลเท่านั้น เวลาใช้งาน state เพื่อบันทึกลงฐานข้อมูลจะได้เป็นปี ค.ศ. ตามปกติ
 
 ```php
 
@@ -120,7 +110,7 @@ Tables\Columns\TextColumn::make('order_date')
     ->label('วันที่')
     ->thaidate()
     // สามารถระบุ date format ได้เหมือน function date_format ของ PHP
-    // default format เป็น d M y 
+    // default format เป็น d M y
     // เช่น 18 พ.ค. 67
 
 ```
@@ -133,15 +123,28 @@ use Filament\Tables;
 Tables\Columns\TextColumn::make('created_at')
     ->label('วันที่สร้าง')
     ->thaidatetime()
-    // default format เป็น d M y H:i 
+    // default format เป็น d M y H:i
     // เช่น 18 พ.ค. 67 12:00
 
 ```
 
+## สำหรับนักพัฒนา
+
+### การอัปเดต View ให้ตรงกับ Filament เวอร์ชันใหม่
+
+Package นี้ใช้ Blade view ที่คัดลอกมาจาก Filament ต้นฉบับ แล้วแก้ไขเพียง 4 จุดเท่านั้น
+เมื่อ Filament อัปเดตเวอร์ชัน สามารถ sync view ใหม่ได้ด้วยคำสั่งเดียว
+
+```bash
+php bin/sync-view.php /path/to/laravel-project
+```
+
+รายละเอียดจุดที่แก้ไขจาก Filament ต้นฉบับ ดูได้ที่ไฟล์ [SYNC.md](SYNC.md)
+
 ## ผู้พัฒนา
 
-🙋‍♂️ สวัสดีครับ ผมอ๊อฟนะครับ เป็น Full Stack Web Developer
-รับ Implement งาน Project ทางด้าน Web Application สำหรับองค์กร ธุรกิจ SME ส่วนงานราชการและบริษัทขนาดใหญ่ครับ  
+สวัสดีครับ ผมอ๊อฟนะครับ เป็น Full Stack Web Developer
+รับ Implement งาน Project ทางด้าน Web Application สำหรับองค์กร ธุรกิจ SME ส่วนงานราชการและบริษัทขนาดใหญ่ครับ
 https://phattarachai.dev
 
 line:
