@@ -129,19 +129,6 @@ Tables\Columns\TextColumn::make('created_at')
 
 ```
 
-## สำหรับนักพัฒนา
-
-### การอัปเดต View ให้ตรงกับ Filament เวอร์ชันใหม่
-
-Package นี้ใช้ Blade view ที่คัดลอกมาจาก Filament ต้นฉบับ แล้วแก้ไขเพียง 4 จุดเท่านั้น
-เมื่อ Filament อัปเดตเวอร์ชัน สามารถ sync view ใหม่ได้ด้วยคำสั่งเดียว
-
-```bash
-php bin/sync-view.php /path/to/laravel-project
-```
-
-รายละเอียดจุดที่แก้ไขจาก Filament ต้นฉบับ ดูได้ที่ไฟล์ [SYNC.md](SYNC.md)
-
 ## ผู้พัฒนา
 
 สวัสดีครับ ผมอ๊อฟนะครับ เป็น Full Stack Web Developer
