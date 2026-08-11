@@ -13,7 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Tell Packagist to refresh
+        env:
+          PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
         run: |
+          token="$(printf %s "$PACKAGIST_TOKEN" | tr -d '[:space:]')"
           curl -sSf -XPOST -H 'content-type:application/json' \
-            "https://packagist.org/api/update-package?username=phatchai&apiToken=${{ secrets.PACKAGIST_TOKEN }}" \
+            "https://packagist.org/api/update-package?username=phatchai&apiToken=${token}" \
             -d '{"repository":{"url":"https://packagist.org/packages/${{ github.repository }}"}}'
