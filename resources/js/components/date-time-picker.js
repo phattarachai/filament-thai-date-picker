@@ -44,6 +44,8 @@ export default function thaiDateTimePickerFormComponent({
 
         focusedThaiYear: null, // THAI: added
 
+        hasValidationMessage: false,
+
         hour: null,
 
         isClearingState: false,
@@ -138,7 +140,11 @@ export default function thaiDateTimePickerFormComponent({
             this.$watch('focusedThaiYear', () => {
                 let thaiYear = +this.focusedThaiYear
 
-                if (!Number.isInteger(thaiYear) || thaiYear < 1000 || thaiYear > 9999) {
+                if (
+                    !Number.isInteger(thaiYear) ||
+                    thaiYear < 1000 ||
+                    thaiYear > 9999
+                ) {
                     return
                 }
 
@@ -281,6 +287,13 @@ export default function thaiDateTimePickerFormComponent({
 
                 this.setDisplayText()
             })
+        },
+
+        checkTimeInputValidity(event) {
+            const el = event.target
+            if (this.isOpen() && !el.validity.valid) {
+                el.reportValidity()
+            }
         },
 
         clearState() {
@@ -533,6 +546,24 @@ export default function thaiDateTimePickerFormComponent({
 
         isOpen() {
             return this.$refs.panel?.style.display === 'block'
+        },
+
+        timeInputInvalid(event) {
+            const el = event.target
+
+            if (!this.isOpen()) {
+                event.preventDefault()
+                this.togglePanelVisibility()
+            }
+
+            if (!this.hasValidationMessage) {
+                this.hasValidationMessage = true
+
+                this.$nextTick(() => {
+                    el.reportValidity()
+                    this.hasValidationMessage = false
+                })
+            }
         },
     }
 }
