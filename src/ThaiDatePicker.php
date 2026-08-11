@@ -2,12 +2,10 @@
 
 namespace Phattarachai\FilamentThaiDatePicker;
 
-
 use Filament\Forms\Components\DatePicker;
 
 class ThaiDatePicker extends DatePicker
 {
-
     protected string $view = 'filament-thai-date-picker::date-time-picker';
 
     protected function setUp(): void
@@ -18,5 +16,4 @@ class ThaiDatePicker extends DatePicker
             ->locale('th')
             ->time(false);
     }
-
 }

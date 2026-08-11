@@ -25,18 +25,21 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
         }
     }
 
-    public function packageRegistered(): void
-    {
-    }
+    public function packageRegistered(): void {}
 
     public function packageBooted(): void
     {
         FilamentAsset::register([
-            AlpineComponent::make('date-time-picker', __DIR__ . '/../resources/dist/components/date-time-picker.js'),
+            AlpineComponent::make('date-time-picker', __DIR__.'/../resources/dist/components/date-time-picker.js'),
         ], 'phattarachai/filament-thai-date-picker');
 
-        $this->configureTableColumns();
-        $this->configureInfolists();
+        if (class_exists(TextColumn::class)) {
+            $this->configureTableColumns();
+        }
+
+        if (class_exists(TextEntry::class)) {
+            $this->configureInfolists();
+        }
     }
 
     public function configureTableColumns(): void
@@ -77,7 +80,7 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
         });
 
         TextColumn::macro('timeDescription', function (?string $format = 'H:i') {
-            return $this->description(fn($state) => $state?->format($format));
+            return $this->description(fn ($state) => $state?->format($format));
         });
     }
 
@@ -126,5 +129,4 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
     {
         return [];
     }
-
 }

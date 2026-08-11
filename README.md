@@ -1,6 +1,10 @@
 # FilamentPHP Thai Date Picker Form Component
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/phattarachai/filament-thai-date-picker.svg?style=flat-square)](https://packagist.org/packages/phattarachai/filament-thai-date-picker)
+[![Tests](https://img.shields.io/github/actions/workflow/status/phattarachai/filament-thai-date-picker/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/phattarachai/filament-thai-date-picker/actions/workflows/run-tests.yml?query=branch%3Amain)
+[![Code Style](https://img.shields.io/github/actions/workflow/status/phattarachai/filament-thai-date-picker/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/phattarachai/filament-thai-date-picker/actions/workflows/fix-php-code-style-issues.yml?query=branch%3Amain)
+[![PHP Version](https://img.shields.io/packagist/dependency-v/phattarachai/filament-thai-date-picker/php?style=flat-square&label=php&logo=php&logoColor=white)](https://packagist.org/packages/phattarachai/filament-thai-date-picker)
+![Laravel Version](https://img.shields.io/badge/laravel-12%20%7C%2013-FF2D20?style=flat-square&logo=laravel&logoColor=white)
 [![Total Downloads](https://img.shields.io/packagist/dt/phattarachai/filament-thai-date-picker.svg?style=flat-square)](https://packagist.org/packages/phattarachai/filament-thai-date-picker)
 
 ปฏิทิน Thai Date Picker สำหรับ Filament Form Component

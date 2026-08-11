@@ -16,7 +16,6 @@
  * Example:
  *   php bin/sync-view.php /home/phatchai/oun-jai
  */
-
 $projectPath = $argv[1] ?? null;
 
 if (! $projectPath || ! is_dir($projectPath)) {
@@ -25,8 +24,8 @@ if (! $projectPath || ! is_dir($projectPath)) {
     exit(1);
 }
 
-$source = rtrim($projectPath, '/') . '/vendor/filament/forms/resources/views/components/date-time-picker.blade.php';
-$target = __DIR__ . '/../resources/views/date-time-picker.blade.php';
+$source = rtrim($projectPath, '/').'/vendor/filament/forms/resources/views/components/date-time-picker.blade.php';
+$target = __DIR__.'/../resources/views/date-time-picker.blade.php';
 
 if (! file_exists($source)) {
     echo "ERROR: Source file not found:\n  {$source}\n";
@@ -53,7 +52,7 @@ $content = str_replace(
 
 // Patch 3: Add hasTime param (after isAutofocused line)
 $content = str_replace(
-    "isAutofocused: @js(\$isAutofocused),",
+    'isAutofocused: @js($isAutofocused),',
     "hasTime: @js(\$hasTime),\n                            isAutofocused: @js(\$isAutofocused),",
     $content
 );
@@ -68,14 +67,22 @@ $content = str_replace(
 // Add header comment
 $header = "{{-- Thai DatePicker: patched from Filament's date-time-picker.blade.php --}}\n";
 $header .= "{{-- Changes marked with \"THAI:\" comments. Run `php bin/sync-view.php` to re-sync. --}}\n";
-$content = $header . $content;
+$content = $header.$content;
 
 // Verify all patches were applied
 $patchCount = 0;
-if (strpos($content, 'phattarachai/filament-thai-date-picker') !== false) $patchCount++;
-if (strpos($content, 'thaiDateTimePickerFormComponent') !== false) $patchCount++;
-if (strpos($content, 'hasTime: @js($hasTime)') !== false) $patchCount++;
-if (strpos($content, 'focusedThaiYear') !== false) $patchCount++;
+if (strpos($content, 'phattarachai/filament-thai-date-picker') !== false) {
+    $patchCount++;
+}
+if (strpos($content, 'thaiDateTimePickerFormComponent') !== false) {
+    $patchCount++;
+}
+if (strpos($content, 'hasTime: @js($hasTime)') !== false) {
+    $patchCount++;
+}
+if (strpos($content, 'focusedThaiYear') !== false) {
+    $patchCount++;
+}
 
 if ($patchCount < 4) {
     echo "WARNING: Only {$patchCount}/4 patches applied. Filament's view may have changed.\n";
@@ -87,7 +94,7 @@ file_put_contents($target, $content);
 
 // Get Filament version
 $filamentVersion = 'unknown';
-$lockFile = rtrim($projectPath, '/') . '/composer.lock';
+$lockFile = rtrim($projectPath, '/').'/composer.lock';
 if (file_exists($lockFile)) {
     $lock = json_decode(file_get_contents($lockFile), true);
     foreach ($lock['packages'] ?? [] as $pkg) {
