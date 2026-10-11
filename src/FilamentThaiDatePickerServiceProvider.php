@@ -80,7 +80,15 @@ class FilamentThaiDatePickerServiceProvider extends PackageServiceProvider
         });
 
         TextColumn::macro('timeDescription', function (?string $format = 'H:i') {
-            return $this->description(fn ($state) => $state?->format($format));
+            return $this->description(static function (TextColumn $column, $state) use ($format): ?string {
+                if (blank($state)) {
+                    return null;
+                }
+
+                return Carbon::parse($state)
+                    ->setTimezone($column->getTimezone())
+                    ->format($format);
+            });
         });
     }
 
