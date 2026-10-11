@@ -1,60 +1,77 @@
 # Syncing with Filament's DateTimePicker
 
-This package reuses Filament's `date-time-picker` markup and JS with minimal Thai patches. It
-keeps a **standalone Blade view** (`resources/views/date-time-picker.blade.php`) and a **forked
-Alpine component** (`resources/js/components/date-time-picker.js`), both wired in through the
-`$view` override on `ThaiDatePicker` / `ThaiDateTimePicker`.
+This package reuses Filament's `date-time-picker` markup and JS with minimal Thai patches:
 
-## Filament 5 changed the source
+- **Markup** is Filament's own. `ThaiDatePicker` / `ThaiDateTimePicker` use the
+  `Concerns\RendersThaiPicker` trait, which calls `DateTimePicker::toEmbeddedHtml()` and applies the
+  Thai patches as exact string replacements. There is no forked Blade view.
+- **JS** is a forked Alpine component (`resources/js/components/date-time-picker.js`), built to
+  `resources/dist` and registered under `phattarachai/filament-thai-date-picker`.
 
-Filament 5 no longer ships a `date-time-picker.blade.php`. `DateTimePicker` implements
-`HasEmbeddedView` and renders from `toEmbeddedHtml()` in
-`vendor/filament/forms/src/Components/DateTimePicker.php`. Setting `$view` on our subclasses makes
-`ViewComponent::toHtml()` render our Blade instead of the embedded HTML (it returns the view
-whenever `hasView()` is true), so the override still works — but there is no upstream Blade file to
-copy from anymore. The old one-command `bin/sync-view.php` was removed for this reason.
+Last synced with **filament/forms v5.10.1**. `composer.json` requires `filament/forms: ^5.10.1`, because
+the JS fork expects the markup of that version (the `hasDate` option, and the min/max limits that
+`getDateLimitForInput()` normalises to `Y-m-d H:i:s`).
+
+## Why not a forked Blade view
+
+Filament 5 renders `DateTimePicker` from `toEmbeddedHtml()`, not a Blade file. Up to 4.0.x the package
+kept a hand-copied Blade view behind a `$view` override, and it drifted: by 5.10.1 upstream had moved
+the trigger, added accessibility attributes, and passed the date limits through a protected
+`getDateLimitForInput()` that a Blade view cannot call. Patching the rendered HTML picks up those
+changes for free.
+
+If a patch's search string is no longer found exactly once, `toEmbeddedHtml()` renders the **stock**
+Filament picker (Gregorian, still working) and `report()`s a `LogicException`. It never renders a
+half-patched picker. `tests/Feature/ThaiPickerRenderTest.php` asserts every patch applies, so CI on a new
+Filament release fails before users see the fallback.
 
 ## Re-syncing after a `filament/forms` upgrade
 
-1. **Blade** — diff our view against Filament's embedded markup and port any non-Thai change:
-   ```bash
-   # Filament's current structure lives in the toEmbeddedHtml() method:
-   less vendor/filament/forms/src/Components/DateTimePicker.php
-   ```
-   Our view is a hand-maintained fork; there is no automated copy. Keep the Thai patches (below).
-2. **JS** — diff and port non-Thai changes:
+1. **Markup**: run `vendor/bin/pest`. If the render tests pass, the markup needs nothing. If they fail,
+   read `toEmbeddedHtml()` in `vendor/filament/forms/src/Components/DateTimePicker.php` and update the
+   search strings in `RendersThaiPicker::getThaiPatches()`.
+2. **JS**: diff and port every non-Thai change:
    ```bash
    diff resources/js/components/date-time-picker.js \
         vendor/filament/forms/resources/js/components/date-time-picker.js
    ```
-3. **Rebuild JS**: `npm run build` (esbuild; there is no CSS build — see below).
+   The cleanest way is to start from the upstream file and re-apply the `// THAI:` patches below.
+   Then bump the version in the file's header comment and the `filament/forms` floor in `composer.json`.
+3. **Rebuild JS** with `npm run build` (esbuild; there is no CSS build, see below) and commit
+   `resources/dist`.
 
 ## Thai patches
 
-### Blade (`resources/views/date-time-picker.blade.php`)
+### Markup (`src/Concerns/RendersThaiPicker.php`)
 
-- `getAlpineComponentSrc('date-time-picker', 'phattarachai/filament-thai-date-picker')`
-- `x-data="thaiDateTimePickerFormComponent({ ..., hasTime: @js($hasTime) })"`
-- Year input bound to `focusedThaiYear` instead of `focusedYear`
+- `x-load-src`: Filament's `date-time-picker` component URL is swapped for ours
+- `x-data="dateTimePickerFormComponent({` → `thaiDateTimePickerFormComponent({ hasTime: …,`
+- The year input's `x-model.debounce="focusedYear"` → `focusedThaiYear` (only when `hasDate()`, since a
+  time-only picker has no year input)
 
-### JS (`resources/js/components/date-time-picker.js`) — changes marked `// THAI:`
+The native input (`->native()`) is left untouched.
 
-- `buddhistEra` dayjs plugin (replaces Filament's `advancedFormat`, which the fork doesn't need
-  since `setDisplayText()` is overridden)
+### JS (`resources/js/components/date-time-picker.js`): changes marked `// THAI:`
+
+- `buddhistEra` dayjs plugin, alongside Filament's `advancedFormat`
 - Renamed to `thaiDateTimePickerFormComponent`, added `hasTime` param
 - `focusedThaiYear` property + watcher (syncs Thai year input → Gregorian `focusedDate`), also
   updated in `init()` and the `focusedDate` watcher
-- `setDisplayText()` formats with Buddhist Era (`D MMM BB` / `D MMM BB HH:mm`)
+- `setDisplayText()` formats date pickers with Buddhist Era (`D MMM BB` / `D MMM BB HH:mm`); a
+  time-only picker (`hasDate: false`) keeps upstream's `displayFormat`
 - Default locale `'th'`; locale list reduced to `en` + `th`
+
+## Known behaviour inherited from Filament
+
+A time input typed out of range (e.g. minute `75`) is reset to `0` by the component's `minute` watcher
+and saved without a validation error. Stock Filament 5.10.1 does the same, so the fork does not diverge here.
 
 ## No CSS build
 
-The package ships no stylesheet — the fork reuses Filament's own `fi-fo-*` classes, which the host
-Filament theme already styles. The former Tailwind/PostCSS/purge chain compiled only a dead
-`-webkit-datetime-edit` rule (the picker runs `native(false)`, so no native input exists) and was
-never registered, so it was removed. `package.json` builds JS only.
+The package ships no stylesheet. The fork reuses Filament's own `fi-fo-*` classes, which the host
+Filament theme already styles. `package.json` builds JS only.
 
-## PHP classes (no sync needed)
+## PHP classes
 
-`ThaiDatePicker` and `ThaiDateTimePicker` extend Filament's classes and only set `$view`,
-`native(false)`, and `locale('th')` — Filament's public API, nothing to sync.
+`ThaiDatePicker` and `ThaiDateTimePicker` extend Filament's classes, set `native(false)` and
+`locale('th')`, and use `RendersThaiPicker`. Everything else is Filament's public API.

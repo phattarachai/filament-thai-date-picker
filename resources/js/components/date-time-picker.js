@@ -1,13 +1,15 @@
-// Thai DatePicker: based on Filament's date-time-picker.js
-// Changes from original marked with "THAI:" comments.
+// Thai DatePicker: based on Filament's date-time-picker.js (filament/forms v5.10.1)
+// Changes from original marked with "THAI:" comments. How to re-sync: see SYNC.md.
 
 import dayjs from 'dayjs/esm'
+import advancedFormat from 'dayjs/plugin/advancedFormat'
 import buddhistEra from 'dayjs/plugin/buddhistEra' // THAI: added
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import localeData from 'dayjs/plugin/localeData'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 
+dayjs.extend(advancedFormat)
 dayjs.extend(buddhistEra) // THAI: added
 dayjs.extend(customParseFormat)
 dayjs.extend(localeData)
@@ -21,14 +23,13 @@ export default function thaiDateTimePickerFormComponent({
     defaultFocusedDate,
     displayFormat,
     firstDayOfWeek,
-    hasTime,
+    hasDate = true,
+    hasTime, // THAI: added
     isAutofocused,
     locale,
     shouldCloseOnDateSelection,
     state,
 }) {
-    const timezone = dayjs.tz.guess()
-
     return {
         daysInFocusedMonth: [],
 
@@ -66,9 +67,10 @@ export default function thaiDateTimePickerFormComponent({
             dayjs.locale(locales[locale] ?? locales['th']) // THAI: default 'th'
 
             this.$nextTick(() => {
-                this.focusedDate ??= (
-                    this.getDefaultFocusedDate() ?? dayjs()
-                ).tz(timezone)
+                const date = this.getDefaultFocusedDate()
+                this.focusedDate ??= hasDate
+                    ? (date ?? this.getToday())
+                    : (date ?? dayjs()).tz(dayjs.tz.guess())
                 this.focusedMonth ??= this.focusedDate.month()
                 this.focusedYear ??= this.focusedDate.year()
                 this.focusedThaiYear ??= this.focusedDate.year() + 543 // THAI: added
@@ -77,14 +79,9 @@ export default function thaiDateTimePickerFormComponent({
             let date =
                 this.getSelectedDate() ??
                 this.getDefaultFocusedDate() ??
-                dayjs().tz(timezone).hour(0).minute(0).second(0)
+                this.getToday().hour(0).minute(0).second(0)
 
-            if (this.getMaxDate() !== null && date.isAfter(this.getMaxDate())) {
-                date = null
-            } else if (
-                this.getMinDate() !== null &&
-                date.isBefore(this.getMinDate())
-            ) {
+            if (this.dateIsOutsideLimits(date)) {
                 date = null
             }
 
@@ -124,7 +121,7 @@ export default function thaiDateTimePickerFormComponent({
                 let year = +this.focusedYear
 
                 if (!Number.isInteger(year)) {
-                    year = dayjs().tz(timezone).year()
+                    year = this.getToday().year()
 
                     this.focusedYear = year
                 }
@@ -257,16 +254,7 @@ export default function thaiDateTimePickerFormComponent({
                     return
                 }
 
-                if (
-                    this.getMaxDate() !== null &&
-                    date?.isAfter(this.getMaxDate())
-                ) {
-                    date = null
-                }
-                if (
-                    this.getMinDate() !== null &&
-                    date?.isBefore(this.getMinDate())
-                ) {
+                if (this.dateIsOutsideLimits(date)) {
                     date = null
                 }
 
@@ -313,7 +301,17 @@ export default function thaiDateTimePickerFormComponent({
                 this.$refs?.disabledDates &&
                 JSON.parse(this.$refs.disabledDates.value ?? []).some(
                     (disabledDate) => {
-                        disabledDate = dayjs(disabledDate)
+                        // Preserve browser-calendar projection for explicitly zoned and other non-canonical values.
+                        disabledDate = !hasDate
+                            ? dayjs(disabledDate)
+                            : typeof disabledDate === 'string' &&
+                                /^\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}(?::\d{2}(?:\.\d{1,6})?)?)?$/.test(
+                                    disabledDate,
+                                )
+                              ? dayjs.utc(disabledDate)
+                              : dayjs.utc(
+                                    dayjs(disabledDate).format('YYYY-MM-DD'),
+                                )
 
                         if (!disabledDate.isValid()) {
                             return false
@@ -326,10 +324,18 @@ export default function thaiDateTimePickerFormComponent({
                 return true
             }
 
-            if (this.getMaxDate() && date.isAfter(this.getMaxDate(), 'day')) {
+            if (
+                hasDate &&
+                this.getMaxDate() &&
+                date.isAfter(this.getMaxDate(), 'day')
+            ) {
                 return true
             }
-            if (this.getMinDate() && date.isBefore(this.getMinDate(), 'day')) {
+            if (
+                hasDate &&
+                this.getMinDate() &&
+                date.isBefore(this.getMinDate(), 'day')
+            ) {
                 return true
             }
 
@@ -337,7 +343,7 @@ export default function thaiDateTimePickerFormComponent({
         },
 
         dayIsDisabled(day) {
-            this.focusedDate ??= dayjs().tz(timezone)
+            this.focusedDate ??= this.getToday()
 
             return this.dateIsDisabled(this.focusedDate.date(day))
         },
@@ -349,7 +355,7 @@ export default function thaiDateTimePickerFormComponent({
                 return false
             }
 
-            this.focusedDate ??= dayjs().tz(timezone)
+            this.focusedDate ??= this.getToday()
 
             return (
                 selectedDate.date() === day &&
@@ -359,7 +365,7 @@ export default function thaiDateTimePickerFormComponent({
         },
 
         dayIsToday(day) {
-            let date = dayjs().tz(timezone)
+            let date = this.getToday()
             this.focusedDate ??= date
 
             return (
@@ -370,25 +376,25 @@ export default function thaiDateTimePickerFormComponent({
         },
 
         focusPreviousDay() {
-            this.focusedDate ??= dayjs().tz(timezone)
+            this.focusedDate ??= this.getToday()
 
             this.focusedDate = this.focusedDate.subtract(1, 'day')
         },
 
         focusPreviousWeek() {
-            this.focusedDate ??= dayjs().tz(timezone)
+            this.focusedDate ??= this.getToday()
 
             this.focusedDate = this.focusedDate.subtract(1, 'week')
         },
 
         focusNextDay() {
-            this.focusedDate ??= dayjs().tz(timezone)
+            this.focusedDate ??= this.getToday()
 
             this.focusedDate = this.focusedDate.add(1, 'day')
         },
 
         focusNextWeek() {
-            this.focusedDate ??= dayjs().tz(timezone)
+            this.focusedDate ??= this.getToday()
 
             this.focusedDate = this.focusedDate.add(1, 'week')
         },
@@ -407,15 +413,34 @@ export default function thaiDateTimePickerFormComponent({
         },
 
         getMaxDate() {
-            let date = dayjs(this.$refs.maxDate?.value)
+            return this.getDateLimit(this.$refs.maxDate?.value)
+        },
+
+        getMinDate() {
+            return this.getDateLimit(this.$refs.minDate?.value)
+        },
+
+        getDateLimit(value) {
+            const date = dayjs.utc(value)
 
             return date.isValid() ? date : null
         },
 
-        getMinDate() {
-            let date = dayjs(this.$refs.minDate?.value)
+        dateIsOutsideLimits(date) {
+            const minimum = this.getMinDate()
+            const maximum = this.getMaxDate()
 
-            return date.isValid() ? date : null
+            return (
+                (minimum !== null &&
+                    (hasDate
+                        ? date.isBefore(minimum)
+                        : date.format('HH:mm:ss') <
+                          minimum.format('HH:mm:ss'))) ||
+                (maximum !== null &&
+                    (hasDate
+                        ? date.isAfter(maximum)
+                        : date.format('HH:mm:ss') > maximum.format('HH:mm:ss')))
+            )
         },
 
         getSelectedDate() {
@@ -427,7 +452,7 @@ export default function thaiDateTimePickerFormComponent({
                 return null
             }
 
-            let date = dayjs(this.state)
+            let date = dayjs.utc(this.state)
 
             if (!date.isValid()) {
                 return null
@@ -441,7 +466,7 @@ export default function thaiDateTimePickerFormComponent({
                 return null
             }
 
-            let defaultFocusedDate = dayjs(this.defaultFocusedDate)
+            let defaultFocusedDate = dayjs.utc(this.defaultFocusedDate)
 
             if (!defaultFocusedDate.isValid()) {
                 return null
@@ -450,13 +475,20 @@ export default function thaiDateTimePickerFormComponent({
             return defaultFocusedDate
         },
 
+        getToday() {
+            // Use UTC only as a neutral calendar, preserving the browser's local date.
+            return hasDate
+                ? dayjs.utc(dayjs().format('YYYY-MM-DD'))
+                : dayjs().tz(dayjs.tz.guess())
+        },
+
         togglePanelVisibility() {
             if (!this.isOpen()) {
                 this.focusedDate =
                     this.getSelectedDate() ??
                     this.focusedDate ??
                     this.getMinDate() ??
-                    dayjs().tz(timezone)
+                    this.getToday()
 
                 this.setupDaysGrid()
             }
@@ -469,7 +501,7 @@ export default function thaiDateTimePickerFormComponent({
                 this.setFocusedDay(day)
             }
 
-            this.focusedDate ??= dayjs().tz(timezone)
+            this.focusedDate ??= this.getToday()
 
             this.setState(this.focusedDate)
 
@@ -478,14 +510,22 @@ export default function thaiDateTimePickerFormComponent({
             }
         },
 
-        // THAI: modified — display Buddhist Era format instead of displayFormat
         setDisplayText() {
             const date = this.getSelectedDate()
+
             if (!date) {
                 this.displayText = ''
+
                 return
             }
 
+            if (!hasDate) {
+                this.displayText = date.format(displayFormat)
+
+                return
+            }
+
+            // THAI: modified — display Buddhist Era format instead of displayFormat
             this.displayText = hasTime
                 ? date.format('D MMM BB HH:mm')
                 : date.format('D MMM BB')
@@ -500,7 +540,7 @@ export default function thaiDateTimePickerFormComponent({
         },
 
         setupDaysGrid() {
-            this.focusedDate ??= dayjs().tz(timezone)
+            this.focusedDate ??= this.getToday()
 
             this.emptyDaysInFocusedMonth = Array.from(
                 {
@@ -518,9 +558,7 @@ export default function thaiDateTimePickerFormComponent({
         },
 
         setFocusedDay(day) {
-            this.focusedDate = (this.focusedDate ?? dayjs().tz(timezone)).date(
-                day,
-            )
+            this.focusedDate = (this.focusedDate ?? this.getToday()).date(day)
         },
 
         setState(date) {
@@ -535,6 +573,10 @@ export default function thaiDateTimePickerFormComponent({
                 return
             }
 
+            if (!hasDate) {
+                date = dayjs.utc(date.format('YYYY-MM-DD HH:mm:ss'))
+            }
+
             this.state = date
                 .hour(this.hour ?? 0)
                 .minute(this.minute ?? 0)
@@ -542,10 +584,6 @@ export default function thaiDateTimePickerFormComponent({
                 .format('YYYY-MM-DD HH:mm:ss')
 
             this.setDisplayText()
-        },
-
-        isOpen() {
-            return this.$refs.panel?.style.display === 'block'
         },
 
         timeInputInvalid(event) {
@@ -565,9 +603,14 @@ export default function thaiDateTimePickerFormComponent({
                 })
             }
         },
+
+        isOpen() {
+            return this.$refs.panel?.style.display === 'block'
+        },
     }
 }
 
+// THAI: reduced to en + th
 const locales = {
     en: require('dayjs/locale/en'),
     th: require('dayjs/locale/th'),
