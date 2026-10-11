@@ -7,7 +7,12 @@
 /.gitignore             export-ignore
 /.idea                  export-ignore
 /.prettierrc            export-ignore
-/.package-lock.json     export-ignore
+/package-lock.json      export-ignore
+/composer.lock          export-ignore
+/bin                    export-ignore
+/resources/js           export-ignore
+/SYNC.md                export-ignore
+/thai-date-picker.png   export-ignore
 /.editorconfig          export-ignore
 /.php_cs.dist.php       export-ignore
 /.vscode                export-ignore

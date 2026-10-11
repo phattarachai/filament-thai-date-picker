@@ -1,5 +1,5 @@
 {{-- Thai DatePicker: patched from Filament's date-time-picker.blade.php --}}
-{{-- Changes marked with "THAI:" comments. Run `php bin/sync-view.php` to re-sync. --}}
+{{-- Changes marked with "THAI:" comments. How to re-sync with Filament: see SYNC.md. --}}
 @php
     $fieldWrapperView = $getFieldWrapperView();
     $datalistOptions = $getDatalistOptions();
