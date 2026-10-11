@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.2 - 2026-10-11
+
+- `timeDescription()` แสดงเวลาตาม timezone ของคอลัมน์ ตรงกับวันที่จาก `thaidate()`
+- ไฟล์สำหรับพัฒนา (`composer.lock`, `package-lock.json`, `bin/`, `resources/js`) ไม่ติดไปกับแพ็กเกจที่ติดตั้งแล้ว
+
 ## 4.0.1 - 2026-10-11
 
 - รองรับ `phattarachai/thaidate` 14 (ยังใช้ 13 ได้เหมือนเดิม)
