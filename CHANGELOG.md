@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.1.0 - 2026-10-11
+
+ต้องการ Filament 5.10.1 ขึ้นไป
+
+- `displayFormat()` ใช้ได้แล้ว ปี `Y` / `y` แสดงเป็นปี พ.ศ. ค่าเริ่มต้นยังเป็น `j M y` และ `j M y H:i` เหมือนเดิม
+- `ThaiDateTimePicker::make()->date(false)` เป็นช่องเลือกเวลาอย่างเดียว แสดงเฉพาะเวลา
+- ปรับ picker ให้ตรงกับ Filament 5.10.1 รวมถึงการตรวจ `minDate()` / `maxDate()` และการจัดการวันที่แบบไม่มีเวลา
+- markup ของ picker ใช้ของ Filament โดยตรง แล้วแทนเฉพาะจุดที่เป็นภาษาไทย ไม่ต้องตาม sync Blade view อีก
+
 ## 4.0.2 - 2026-10-11
 
 - `timeDescription()` แสดงเวลาตาม timezone ของคอลัมน์ ตรงกับวันที่จาก `thaidate()`

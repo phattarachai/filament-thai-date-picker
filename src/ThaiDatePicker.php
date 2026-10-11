@@ -15,6 +15,7 @@ class ThaiDatePicker extends DatePicker
 
         $this->native(false)
             ->locale('th')
-            ->time(false);
+            ->time(false)
+            ->defaultDateDisplayFormat('j M y');
     }
 }

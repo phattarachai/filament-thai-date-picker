@@ -16,23 +16,41 @@ it('renders ThaiDatePicker with the Thai Alpine component', function () {
     expect($html)
         ->toContain('x-load-src="'.e(FilamentAsset::getAlpineComponentSrc('date-time-picker', 'phattarachai/filament-thai-date-picker')).'"')
         ->not->toContain(e(FilamentAsset::getAlpineComponentSrc('date-time-picker', 'filament/forms')))
-        ->toContain('x-data="thaiDateTimePickerFormComponent({ hasTime: false,')
+        ->toContain('x-data="thaiDateTimePickerFormComponent({')
         ->toContain('x-model.debounce="focusedThaiYear"')
         ->not->toContain('x-model.debounce="focusedYear"');
 });
 
-it('renders ThaiDateTimePicker with hasTime enabled', function () {
+it('renders ThaiDateTimePicker with the Thai Alpine component', function () {
     expect(renderField(ThaiDateTimePicker::make('transfer_at')))
-        ->toContain('x-data="thaiDateTimePickerFormComponent({ hasTime: true,')
+        ->toContain('x-data="thaiDateTimePickerFormComponent({')
         ->toContain('hasDate: true,')
         ->toContain('x-model.debounce="focusedThaiYear"');
 });
 
 it('renders a time-only ThaiDateTimePicker without the year input', function () {
     expect(renderField(ThaiDateTimePicker::make('opens_at')->date(false)))
-        ->toContain('x-data="thaiDateTimePickerFormComponent({ hasTime: true,')
+        ->toContain('x-data="thaiDateTimePickerFormComponent({')
         ->toContain('hasDate: false,')
         ->not->toContain('fi-fo-date-time-picker-year-input');
+});
+
+it('defaults the display format to a short Thai date', function (DateTimePicker $picker, string $format) {
+    expect(renderField($picker))->toContain("displayFormat: '{$format}',");
+})->with([
+    'date' => [fn () => ThaiDatePicker::make('order_date'), 'D MMM YY'],
+    'datetime' => [fn () => ThaiDateTimePicker::make('transfer_at'), 'D MMM YY HH:mm'],
+    'datetime without seconds' => [fn () => ThaiDateTimePicker::make('transfer_at')->seconds(false), 'D MMM YY HH:mm'],
+]);
+
+it('honours a custom displayFormat', function () {
+    expect(renderField(ThaiDatePicker::make('order_date')->displayFormat('d/m/Y')))
+        ->toContain("displayFormat: 'DD\\/MM\\/YYYY',");
+});
+
+it('keeps the time-only display format from Filament', function () {
+    expect(renderField(ThaiDateTimePicker::make('opens_at')->date(false)->seconds(false)))
+        ->toContain("displayFormat: 'HH:mm',");
 });
 
 it('passes date limits in the format the forked JS reads', function () {

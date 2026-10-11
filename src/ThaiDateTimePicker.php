@@ -14,6 +14,9 @@ class ThaiDateTimePicker extends DateTimePicker
         parent::setUp();
 
         $this->native(false)
-            ->locale('th');
+            ->locale('th')
+            ->defaultDateDisplayFormat('j M y')
+            ->defaultDateTimeDisplayFormat('j M y H:i')
+            ->defaultDateTimeWithSecondsDisplayFormat('j M y H:i');
     }
 }

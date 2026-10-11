@@ -63,6 +63,19 @@ ThaiDateTimePicker::make('transfer_at')
 
 ```
 
+ช่อง input แสดงวันที่แบบ `j M y` (เช่น `11 ต.ค. 69`) และ `j M y H:i` เมื่อมีเวลา
+เปลี่ยนรูปแบบได้ด้วย `displayFormat()` ซึ่งใช้ format แบบ PHP เหมือน DatePicker ปกติ โดยปี `Y` และ `y` จะแสดงเป็นปี พ.ศ.
+
+```php
+ThaiDatePicker::make('order_date')
+    ->displayFormat('j F Y') // 11 ตุลาคม 2569
+
+ThaiDateTimePicker::make('transfer_at')
+    ->displayFormat('d/m/Y H:i:s') // 11/10/2569 14:30:00
+```
+
+ใช้ `ThaiDateTimePicker::make('opens_at')->date(false)` เป็นช่องเลือกเวลาอย่างเดียวได้ แสดงผลตาม time format ของ Filament
+
 โดยปี พ.ศ.จะใช้สำหรับการแสดงผลเท่านั้น เวลาใช้งาน state เพื่อบันทึกลงฐานข้อมูลจะได้เป็นปี ค.ศ. ตามปกติ
 
 ```php
