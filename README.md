@@ -14,12 +14,14 @@
 
 ## Version ที่รองรับ
 
-| Filament   | ThaiDatePicker | สถานะ          |
-|:-----------|:---------------|:---------------|
-| 5.x        | 3.x            | เวอร์ชันปัจจุบัน |
-| 4.x        | 2.x            | ใช้งาน |
-| 3.x        | 1.x            | หยุด support |
+| ThaiDatePicker | Filament | PHP  | Laravel      | สถานะ                    |
+|:---------------|:---------|:-----|:-------------|:-------------------------|
+| 4.x            | 5.x      | 8.3+ | 12, 13       | เวอร์ชันหลัก พัฒนาต่อเนื่อง |
+| 3.x            | 5.x      | 8.2+ | ตาม Filament | แก้บั๊กเท่านั้น              |
+| 2.x            | 4.x      | 8.2+ | ตาม Filament | แก้บั๊กเท่านั้น              |
+| 1.x            | 3.x      | 8.1+ | ตาม Filament | แก้บั๊กเท่านั้น              |
 
+ใช้ Filament 5 อยู่บน PHP 8.2 หรือ Laravel 11 ให้ใช้ 3.x (`^3.0`) ส่วนโปรเจกต์ใหม่ใช้ 4.x
 
 ## วิธีติดตั้ง
 
@@ -29,7 +31,7 @@ Run คำสั่ง composer require เพื่อติดตั้ง Pac
 composer require phattarachai/filament-thai-date-picker
 ```
 
-ทำการ publish ไฟล์ javascript (ถ้าหากไม่ได้ run คำสั่งนี้อยู่แล้วในไฟล์ composer.json `post-autoload-dump`)
+ทำการ publish ไฟล์ javascript ของ picker (ถ้าใน `post-autoload-dump` ของ composer.json มีคำสั่งนี้อยู่แล้ว ข้ามขั้นตอนนี้ได้)
 
 ```bash
 php artisan filament:upgrade
@@ -91,7 +93,7 @@ TextEntry::make('created_at')
     // 18 พ.ค. 67 12:05
 ```
 
-ถ้า field วันที่ เป็นค่า null ได้แล้วแล้วต้องการให้แสดงค่า default สามารถส่ง parameter default ไปใน function ได้
+ถ้า field วันที่เป็นค่า null ได้ และต้องการให้แสดงค่า default ให้ส่ง parameter `default` เข้าไป
 
 ```php
 use Filament\Infolists\Components\TextEntry;
@@ -115,7 +117,7 @@ Tables\Columns\TextColumn::make('order_date')
     ->label('วันที่')
     ->thaidate()
     // สามารถระบุ date format ได้เหมือน function date_format ของ PHP
-    // default format เป็น d M y
+    // default format เป็น j M y
     // เช่น 18 พ.ค. 67
 
 ```
@@ -128,19 +130,40 @@ use Filament\Tables;
 Tables\Columns\TextColumn::make('created_at')
     ->label('วันที่สร้าง')
     ->thaidatetime()
-    // default format เป็น d M y H:i
+    // default format เป็น j M y H:i
     // เช่น 18 พ.ค. 67 12:00
 
 ```
 
+ทั้ง `thaidate()` และ `thaidatetime()` ใน Table Column และ Infolist รับ parameter ชุดเดียวกัน
+
+```php
+->thaidate(format: 'j F Y', timezone: 'Asia/Bangkok', default: '-')
+// 18 พฤษภาคม 2567
+```
+
+- `format` — date format ของ PHP เช่น `j F Y` สำหรับชื่อเดือนเต็ม
+- `timezone` — ถ้าไม่ระบุ จะใช้ timezone ของ column หรือ entry นั้น
+- `default` — ข้อความที่แสดงเมื่อค่าเป็น null
+
+ถ้าต้องการแสดงเวลาเป็นบรรทัดรองใต้วันที่ ใช้ `timeDescription()` กับ column ที่ cast เป็นวันที่
+
+```php
+Tables\Columns\TextColumn::make('created_at')
+    ->thaidate()
+    ->timeDescription()
+    // 18 พ.ค. 67
+    // 12:05
+```
+
 ## ผู้พัฒนา
 
-สวัสดีครับ ผมอ๊อฟนะครับ เป็น Full Stack Web Developer
-รับ Implement งาน Project ทางด้าน Web Application สำหรับองค์กร ธุรกิจ SME ส่วนงานราชการและบริษัทขนาดใหญ่ครับ
-https://phattarachai.dev
+พัฒนาและดูแลโดย [บริษัท ภัทรชัย อาร์ทิซาน จำกัด](https://phattarachai.dev) (Phattarachai Artisan)
+บริษัทที่ปรึกษาและพัฒนาเว็บ ที่เรียนรู้และแบ่งปันกับชุมชน Laravel
+แพ็กเกจนี้แบ่งปันให้ชุมชนนำไปใช้และต่อยอดได้อย่างอิสระ
 
-line:
-[phat-chai](https://line.me/ti/p/~phat-chai)
+ดูแพ็กเกจอื่นของเราได้ที่ [phattarachai.dev/open-source](https://phattarachai.dev/open-source)
+และติดต่อเราได้ที่ [phattarachai.dev](https://phattarachai.dev/#contact)
 
 ## License
 
