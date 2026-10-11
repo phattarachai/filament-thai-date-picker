@@ -3,7 +3,6 @@
 namespace Phattarachai\FilamentThaiDatePicker\Concerns;
 
 use Filament\Support\Facades\FilamentAsset;
-use Illuminate\Support\Js;
 use LogicException;
 
 /**
@@ -41,7 +40,7 @@ trait RendersThaiPicker
     {
         $patches = [
             e(FilamentAsset::getAlpineComponentSrc('date-time-picker', 'filament/forms')) => e(FilamentAsset::getAlpineComponentSrc('date-time-picker', 'phattarachai/filament-thai-date-picker')),
-            'x-data="dateTimePickerFormComponent({' => 'x-data="thaiDateTimePickerFormComponent({ hasTime: '.Js::from($this->hasTime()).',',
+            'x-data="dateTimePickerFormComponent({' => 'x-data="thaiDateTimePickerFormComponent({',
         ];
 
         if ($this->hasDate()) {

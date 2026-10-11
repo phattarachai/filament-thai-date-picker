@@ -18,18 +18,22 @@ dayjs.extend(utc)
 
 window.dayjs = dayjs
 
-// THAI: renamed from dateTimePickerFormComponent, added hasTime param
+// THAI: renamed from dateTimePickerFormComponent
 export default function thaiDateTimePickerFormComponent({
     defaultFocusedDate,
     displayFormat,
     firstDayOfWeek,
     hasDate = true,
-    hasTime, // THAI: added
     isAutofocused,
     locale,
     shouldCloseOnDateSelection,
     state,
 }) {
+    // THAI: added — show years in the display format as Buddhist Era (YYYY → BBBB, YY → BB)
+    displayFormat = displayFormat?.replace(/\[[^\]]+]|YYYY|YY/g, (token) =>
+        token.startsWith('[') ? token : token === 'YYYY' ? 'BBBB' : 'BB',
+    )
+
     return {
         daysInFocusedMonth: [],
 
@@ -525,10 +529,17 @@ export default function thaiDateTimePickerFormComponent({
                 return
             }
 
-            // THAI: modified — display Buddhist Era format instead of displayFormat
-            this.displayText = hasTime
-                ? date.format('D MMM BB HH:mm')
-                : date.format('D MMM BB')
+            // Keep browser-based zone and epoch tokens without letting them normalize calendar components.
+            const browserDate = dayjs(this.state)
+            const format = (displayFormat || 'YYYY-MM-DDTHH:mm:ssZ').replace(
+                /\[[^\]]+]|ZZ|Z|zzz|z|X|x/g,
+                (token) =>
+                    token.startsWith('[')
+                        ? token
+                        : `[${browserDate.format(token)}]`,
+            )
+
+            this.displayText = date.format(format)
         },
 
         setMonths() {

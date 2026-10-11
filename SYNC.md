@@ -45,7 +45,7 @@ Filament release fails before users see the fallback.
 ### Markup (`src/Concerns/RendersThaiPicker.php`)
 
 - `x-load-src`: Filament's `date-time-picker` component URL is swapped for ours
-- `x-data="dateTimePickerFormComponent({` → `thaiDateTimePickerFormComponent({ hasTime: …,`
+- `x-data="dateTimePickerFormComponent({` → `thaiDateTimePickerFormComponent({`
 - The year input's `x-model.debounce="focusedYear"` → `focusedThaiYear` (only when `hasDate()`, since a
   time-only picker has no year input)
 
@@ -54,11 +54,11 @@ The native input (`->native()`) is left untouched.
 ### JS (`resources/js/components/date-time-picker.js`): changes marked `// THAI:`
 
 - `buddhistEra` dayjs plugin, alongside Filament's `advancedFormat`
-- Renamed to `thaiDateTimePickerFormComponent`, added `hasTime` param
+- Renamed to `thaiDateTimePickerFormComponent`
+- `displayFormat` year tokens become Buddhist Era (`YYYY` → `BBBB`, `YY` → `BB`, `[escaped]` text
+  untouched) before the component uses it. `setDisplayText()` itself is upstream's, unpatched.
 - `focusedThaiYear` property + watcher (syncs Thai year input → Gregorian `focusedDate`), also
   updated in `init()` and the `focusedDate` watcher
-- `setDisplayText()` formats date pickers with Buddhist Era (`D MMM BB` / `D MMM BB HH:mm`); a
-  time-only picker (`hasDate: false`) keeps upstream's `displayFormat`
 - Default locale `'th'`; locale list reduced to `en` + `th`
 
 ## Known behaviour inherited from Filament
@@ -73,5 +73,7 @@ Filament theme already styles. `package.json` builds JS only.
 
 ## PHP classes
 
-`ThaiDatePicker` and `ThaiDateTimePicker` extend Filament's classes, set `native(false)` and
-`locale('th')`, and use `RendersThaiPicker`. Everything else is Filament's public API.
+`ThaiDatePicker` and `ThaiDateTimePicker` extend Filament's classes, set `native(false)`,
+`locale('th')` and Thai default display formats (`j M y`, `j M y H:i`, the latter also when seconds are
+enabled), and use `RendersThaiPicker`. A user's `displayFormat()` overrides the defaults; time-only
+pickers keep Filament's default time formats. Everything else is Filament's public API.
