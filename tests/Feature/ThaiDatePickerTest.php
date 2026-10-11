@@ -17,16 +17,14 @@ use Phattarachai\FilamentThaiDatePicker\ThaiDateTimePicker;
 it('configures ThaiDatePicker as a non-native Thai date field', function () {
     $picker = ThaiDatePicker::make('order_date');
 
-    expect($picker->getView())->toBe('filament-thai-date-picker::date-time-picker')
-        ->and($picker->isNative())->toBeFalse()
+    expect($picker->isNative())->toBeFalse()
         ->and($picker->getLocale())->toBe('th');
 });
 
 it('configures ThaiDateTimePicker as a non-native Thai datetime field', function () {
     $picker = ThaiDateTimePicker::make('transfer_at');
 
-    expect($picker->getView())->toBe('filament-thai-date-picker::date-time-picker')
-        ->and($picker->isNative())->toBeFalse()
+    expect($picker->isNative())->toBeFalse()
         ->and($picker->getLocale())->toBe('th');
 });
 

@@ -3,10 +3,11 @@
 namespace Phattarachai\FilamentThaiDatePicker;
 
 use Filament\Forms\Components\DateTimePicker;
+use Phattarachai\FilamentThaiDatePicker\Concerns\RendersThaiPicker;
 
 class ThaiDateTimePicker extends DateTimePicker
 {
-    protected string $view = 'filament-thai-date-picker::date-time-picker';
+    use RendersThaiPicker;
 
     protected function setUp(): void
     {
