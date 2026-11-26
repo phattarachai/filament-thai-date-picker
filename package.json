@@ -6,6 +6,7 @@
         "build": "node bin/build.js"
     },
     "devDependencies": {
+        "@floating-ui/dom": "^1.8.0",
         "dayjs": "^1.11.21",
         "esbuild": "^0.28.2",
         "prettier": "^3.9.6"

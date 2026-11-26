@@ -1,13 +1,24 @@
-// Thai DatePicker: based on Filament's date-time-picker.js (filament/forms v5.10.1)
+// Thai DatePicker: based on Filament's date-time-picker.js (filament/forms v5.12.0)
 // Changes from original marked with "THAI:" comments. How to re-sync: see SYNC.md.
 
 import dayjs from 'dayjs/esm'
+import {
+    autoUpdate,
+    computePosition,
+    flip,
+    offset,
+    shift,
+} from '@floating-ui/dom'
 import advancedFormat from 'dayjs/plugin/advancedFormat'
 import buddhistEra from 'dayjs/plugin/buddhistEra' // THAI: added
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import localeData from 'dayjs/plugin/localeData'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
+import {
+    observeFieldAccessibility,
+    setFieldAccessibilityAttributes,
+} from '../utilities/field-accessibility.js' // THAI: copied from filament/forms
 
 dayjs.extend(advancedFormat)
 dayjs.extend(buddhistEra) // THAI: added
@@ -34,12 +45,30 @@ export default function thaiDateTimePickerFormComponent({
         token.startsWith('[') ? token : token === 'YYYY' ? 'BBBB' : 'BB',
     )
 
+    const calendarLocale = (locales[locale] ?? locales['th']).name // THAI: default 'th'
+
     return {
-        daysInFocusedMonth: [],
+        weeksInFocusedMonth: [],
 
         displayText: '',
 
-        emptyDaysInFocusedMonth: [],
+        renderedMonth: null,
+
+        isPanelOpen: false,
+
+        isPanelReady: false,
+
+        isDestroyed: false,
+
+        panelGeneration: 0,
+
+        focusGeneration: 0,
+
+        positionGeneration: 0,
+
+        positioningCleanup: null,
+
+        accessibilityObserver: null,
 
         focusedDate: null,
 
@@ -65,15 +94,21 @@ export default function thaiDateTimePickerFormComponent({
 
         dayLabels: [],
 
+        fullDayLabels: [],
+
         months: [],
 
         init() {
             dayjs.locale(locales[locale] ?? locales['th']) // THAI: default 'th'
 
             this.$nextTick(() => {
+                if (this.isDestroyed) {
+                    return
+                }
+
                 const date = this.getDefaultFocusedDate()
                 this.focusedDate ??= hasDate
-                    ? (date ?? this.getToday())
+                    ? (date ?? this.getToday()).locale(calendarLocale)
                     : (date ?? dayjs()).tz(dayjs.tz.guess())
                 this.focusedMonth ??= this.focusedDate.month()
                 this.focusedYear ??= this.focusedDate.year()
@@ -97,10 +132,21 @@ export default function thaiDateTimePickerFormComponent({
             this.setMonths()
             this.setDayLabels()
 
+            this.accessibilityObserver = observeFieldAccessibility(
+                this.$el,
+                (attributes) =>
+                    setFieldAccessibilityAttributes(
+                        this.$refs.button,
+                        attributes,
+                    ),
+            )
+
             if (isAutofocused) {
-                this.$nextTick(() =>
-                    this.togglePanelVisibility(this.$refs.button),
-                )
+                this.$nextTick(() => {
+                    if (!this.isDestroyed) {
+                        this.togglePanelVisibility()
+                    }
+                })
             }
 
             this.$watch('focusedMonth', () => {
@@ -159,6 +205,9 @@ export default function thaiDateTimePickerFormComponent({
             })
 
             this.$watch('focusedDate', () => {
+                const shouldFocusCalendar =
+                    hasDate &&
+                    this.$refs.calendar?.contains(document.activeElement)
                 let month = this.focusedDate.month()
                 let year = this.focusedDate.year()
 
@@ -177,6 +226,10 @@ export default function thaiDateTimePickerFormComponent({
                 }
 
                 this.setupDaysGrid()
+
+                if (shouldFocusCalendar) {
+                    this.focusCalendarDate()
+                }
             })
 
             this.$watch('hour', () => {
@@ -279,6 +332,8 @@ export default function thaiDateTimePickerFormComponent({
 
                 this.setDisplayText()
             })
+
+            this.$dispatch('async-component-ready')
         },
 
         checkTimeInputValidity(event) {
@@ -403,8 +458,172 @@ export default function thaiDateTimePickerFormComponent({
             this.focusedDate = this.focusedDate.add(1, 'week')
         },
 
+        handleTriggerKeydown(event) {
+            if (
+                event.altKey ||
+                event.ctrlKey ||
+                event.metaKey ||
+                ![
+                    'Enter',
+                    ' ',
+                    'ArrowLeft',
+                    'ArrowRight',
+                    'ArrowUp',
+                    'ArrowDown',
+                ].includes(event.key)
+            ) {
+                return
+            }
+
+            event.preventDefault()
+            event.stopPropagation()
+
+            if (this.isOpen()) {
+                this.focusCalendarDate()
+            } else {
+                this.togglePanelVisibility()
+            }
+        },
+
+        handleFocusOut(event) {
+            const generation = this.panelGeneration
+
+            if (
+                event.relatedTarget &&
+                !this.$refs.calendar?.contains(event.relatedTarget)
+            ) {
+                this.focusGeneration++
+            }
+
+            const focusGeneration = this.focusGeneration
+
+            this.$nextTick(() =>
+                requestAnimationFrame(() => {
+                    if (
+                        !this.isDestroyed &&
+                        generation === this.panelGeneration &&
+                        focusGeneration === this.focusGeneration &&
+                        this.isOpen() &&
+                        !this.$el.contains(document.activeElement)
+                    ) {
+                        this.closePanel()
+                    }
+                }),
+            )
+        },
+
+        handleCalendarKeydown(event) {
+            if (event.altKey || event.ctrlKey || event.metaKey) {
+                return
+            }
+
+            const isRtl =
+                getComputedStyle(this.$refs.calendar).direction === 'rtl'
+            const weekDay = (this.focusedDate.day() - firstDayOfWeek + 7) % 7
+            let focusedDate = this.focusedDate
+
+            switch (event.key) {
+                case 'ArrowLeft':
+                    focusedDate = focusedDate.add(isRtl ? 1 : -1, 'day')
+                    break
+                case 'ArrowRight':
+                    focusedDate = focusedDate.add(isRtl ? -1 : 1, 'day')
+                    break
+                case 'ArrowUp':
+                    focusedDate = focusedDate.subtract(7, 'day')
+                    break
+                case 'ArrowDown':
+                    focusedDate = focusedDate.add(7, 'day')
+                    break
+                case 'Home':
+                    focusedDate = focusedDate.subtract(weekDay, 'day')
+                    break
+                case 'End':
+                    focusedDate = focusedDate.add(6 - weekDay, 'day')
+                    break
+                case 'PageUp':
+                case 'PageDown':
+                    focusedDate = focusedDate.add(
+                        event.key === 'PageUp' ? -1 : 1,
+                        event.shiftKey ? 'year' : 'month',
+                    )
+                    break
+                case 'Enter':
+                case ' ':
+                    this.selectDate()
+                    event.preventDefault()
+                    event.stopPropagation()
+
+                    return
+                case 'Tab':
+                    this.$refs.calendar
+                        .querySelector(
+                            `[data-date="${this.focusedDate.format('YYYY-MM-DD')}"]`,
+                        )
+                        ?.focus({ preventScroll: true })
+
+                    return
+                default:
+                    return
+            }
+
+            event.preventDefault()
+            event.stopPropagation()
+
+            if (this.renderedMonth !== focusedDate.format('YYYY-MM')) {
+                // Keep keyboard events in the grid while Alpine replaces the focused row.
+                this.$refs.calendar.focus({ preventScroll: true })
+            }
+
+            this.focusedDate = focusedDate
+            this.focusCalendarDate()
+        },
+
+        focusCalendarDate(generation = ++this.focusGeneration) {
+            const focusDate = () => {
+                if (
+                    this.isDestroyed ||
+                    !this.$el.isConnected ||
+                    !this.isOpen() ||
+                    generation !== this.focusGeneration
+                ) {
+                    return
+                }
+
+                this.$refs.calendar
+                    ?.querySelector(
+                        `[data-date="${this.focusedDate.format('YYYY-MM-DD')}"]`,
+                    )
+                    ?.focus({ preventScroll: true })
+            }
+
+            this.$nextTick(() =>
+                this.isPanelReady
+                    ? focusDate()
+                    : requestAnimationFrame(focusDate),
+            )
+        },
+
+        getCalendarLabel() {
+            return (
+                // THAI: Buddhist Era year (BBBB instead of YYYY)
+                this.focusedDate?.locale(calendarLocale).format('MMMM BBBB') ??
+                ''
+            )
+        },
+
+        getDayLabel(day) {
+            return this.focusedDate
+                .date(day)
+                .locale(calendarLocale)
+                .format('dddd, D MMMM BBBB') // THAI: Buddhist Era year
+        },
+
         getDayLabels() {
-            const labels = dayjs.weekdaysShort()
+            const labels = dayjs()
+                .locale(calendarLocale)
+                .localeData()
+                .weekdaysShort()
 
             if (firstDayOfWeek === 0) {
                 return labels
@@ -458,6 +677,10 @@ export default function thaiDateTimePickerFormComponent({
 
             let date = dayjs.utc(this.state)
 
+            if (hasDate) {
+                date = date.locale(calendarLocale)
+            }
+
             if (!date.isValid()) {
                 return null
             }
@@ -472,6 +695,10 @@ export default function thaiDateTimePickerFormComponent({
 
             let defaultFocusedDate = dayjs.utc(this.defaultFocusedDate)
 
+            if (hasDate) {
+                defaultFocusedDate = defaultFocusedDate.locale(calendarLocale)
+            }
+
             if (!defaultFocusedDate.isValid()) {
                 return null
             }
@@ -482,11 +709,21 @@ export default function thaiDateTimePickerFormComponent({
         getToday() {
             // Use UTC only as a neutral calendar, preserving the browser's local date.
             return hasDate
-                ? dayjs.utc(dayjs().format('YYYY-MM-DD'))
+                ? dayjs.utc(dayjs().format('YYYY-MM-DD')).locale(calendarLocale)
                 : dayjs().tz(dayjs.tz.guess())
         },
 
-        togglePanelVisibility() {
+        togglePanelVisibility(shouldFocusCalendar = true) {
+            if (this.isDestroyed) {
+                return
+            }
+
+            if (hasDate && this.isOpen()) {
+                this.closePanel(true)
+
+                return
+            }
+
             if (!this.isOpen()) {
                 this.focusedDate =
                     this.getSelectedDate() ??
@@ -497,7 +734,90 @@ export default function thaiDateTimePickerFormComponent({
                 this.setupDaysGrid()
             }
 
-            this.$refs.panel.toggle(this.$refs.button)
+            if (!hasDate) {
+                this.$refs.panel.toggle(this.$refs.button)
+
+                return
+            }
+
+            this.isPanelOpen = true
+            const generation = ++this.panelGeneration
+            const focusGeneration = ++this.focusGeneration
+
+            this.$nextTick(() =>
+                requestAnimationFrame(() => {
+                    if (
+                        this.isDestroyed ||
+                        !this.$el.isConnected ||
+                        !this.isOpen() ||
+                        generation !== this.panelGeneration
+                    ) {
+                        return
+                    }
+
+                    this.isPanelReady = true
+                    this.positioningCleanup = autoUpdate(
+                        this.$refs.button,
+                        this.$refs.panel,
+                        () => {
+                            const positionGeneration = ++this.positionGeneration
+
+                            computePosition(
+                                this.$refs.button,
+                                this.$refs.panel,
+                                {
+                                    placement: 'bottom-start',
+                                    middleware: [offset(8), flip(), shift()],
+                                },
+                            ).then(({ x, y }) => {
+                                if (
+                                    this.isDestroyed ||
+                                    !this.$el.isConnected ||
+                                    !this.isOpen() ||
+                                    generation !== this.panelGeneration ||
+                                    positionGeneration !==
+                                        this.positionGeneration
+                                ) {
+                                    return
+                                }
+
+                                Object.assign(this.$refs.panel.style, {
+                                    left: `${x}px`,
+                                    top: `${y}px`,
+                                })
+                            })
+                        },
+                    )
+
+                    if (
+                        shouldFocusCalendar &&
+                        focusGeneration === this.focusGeneration
+                    ) {
+                        this.focusCalendarDate(focusGeneration)
+                    }
+                }),
+            )
+        },
+
+        closePanel(shouldRestoreFocus = false) {
+            if (!hasDate) {
+                this.$refs.panel.close()
+            } else {
+                this.isPanelOpen = false
+                this.isPanelReady = false
+                this.panelGeneration++
+                this.focusGeneration++
+                this.positioningCleanup?.()
+                this.positioningCleanup = null
+            }
+
+            if (
+                shouldRestoreFocus &&
+                !this.isDestroyed &&
+                this.$refs.button.isConnected
+            ) {
+                this.$refs.button.focus({ preventScroll: true })
+            }
         },
 
         selectDate(day = null) {
@@ -507,10 +827,18 @@ export default function thaiDateTimePickerFormComponent({
 
             this.focusedDate ??= this.getToday()
 
+            if (hasDate && this.dateIsDisabled(this.focusedDate)) {
+                return
+            }
+
             this.setState(this.focusedDate)
 
             if (shouldCloseOnDateSelection) {
-                this.togglePanelVisibility()
+                if (hasDate) {
+                    this.closePanel(true)
+                } else {
+                    this.togglePanelVisibility()
+                }
             }
         },
 
@@ -543,32 +871,52 @@ export default function thaiDateTimePickerFormComponent({
         },
 
         setMonths() {
-            this.months = dayjs.months()
+            this.months = dayjs().locale(calendarLocale).localeData().months()
         },
 
         setDayLabels() {
             this.dayLabels = this.getDayLabels()
+            const labels = dayjs()
+                .locale(calendarLocale)
+                .localeData()
+                .weekdays()
+            this.fullDayLabels = [
+                ...labels.slice(firstDayOfWeek % 7),
+                ...labels.slice(0, firstDayOfWeek % 7),
+            ]
         },
 
         setupDaysGrid() {
             this.focusedDate ??= this.getToday()
 
-            this.emptyDaysInFocusedMonth = Array.from(
-                {
-                    length: this.focusedDate.date(8 - firstDayOfWeek).day(),
-                },
-                (_, i) => i + 1,
-            )
+            const month = this.focusedDate.format('YYYY-MM')
 
-            this.daysInFocusedMonth = Array.from(
-                {
-                    length: this.focusedDate.daysInMonth(),
-                },
-                (_, i) => i + 1,
+            if (this.renderedMonth === month) {
+                return
+            }
+
+            this.renderedMonth = month
+            const emptyDays =
+                (this.focusedDate.startOf('month').day() - firstDayOfWeek + 7) %
+                7
+            const daysInMonth = this.focusedDate.daysInMonth()
+
+            this.weeksInFocusedMonth = Array.from(
+                { length: Math.ceil((emptyDays + daysInMonth) / 7) },
+                (_, week) =>
+                    Array.from({ length: 7 }, (_, column) => {
+                        const day = week * 7 + column - emptyDays + 1
+
+                        return day > 0 && day <= daysInMonth ? day : null
+                    }),
             )
         },
 
         setFocusedDay(day) {
+            if (this.focusedDate?.date() === day) {
+                return
+            }
+
             this.focusedDate = (this.focusedDate ?? this.getToday()).date(day)
         },
 
@@ -598,25 +946,55 @@ export default function thaiDateTimePickerFormComponent({
         },
 
         timeInputInvalid(event) {
-            const el = event.target
+            const input = event.target
 
             if (!this.isOpen()) {
                 event.preventDefault()
-                this.togglePanelVisibility()
+                this.togglePanelVisibility(false)
+            }
+
+            if (hasDate && !this.isPanelReady) {
+                event.preventDefault()
             }
 
             if (!this.hasValidationMessage) {
                 this.hasValidationMessage = true
+                const generation = this.panelGeneration
 
-                this.$nextTick(() => {
-                    el.reportValidity()
+                const reportValidity = () => {
+                    if (
+                        !hasDate ||
+                        (!this.isDestroyed &&
+                            input.isConnected &&
+                            this.isOpen() &&
+                            generation === this.panelGeneration)
+                    ) {
+                        input.reportValidity()
+                    }
                     this.hasValidationMessage = false
-                })
+                }
+
+                this.$nextTick(() =>
+                    hasDate
+                        ? requestAnimationFrame(reportValidity)
+                        : reportValidity(),
+                )
             }
         },
 
         isOpen() {
-            return this.$refs.panel?.style.display === 'block'
+            return hasDate
+                ? this.isPanelOpen
+                : this.$refs.panel?.style.display === 'block'
+        },
+
+        destroy() {
+            this.isDestroyed = true
+            this.accessibilityObserver?.disconnect()
+
+            if (hasDate) {
+                this.closePanel()
+            }
         },
     }
 }

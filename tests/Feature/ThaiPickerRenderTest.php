@@ -1,12 +1,8 @@
 <?php
 
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Schemas\Schema;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Support\Facades\Exceptions;
-use Livewire\Component;
 use Phattarachai\FilamentThaiDatePicker\ThaiDatePicker;
 use Phattarachai\FilamentThaiDatePicker\ThaiDateTimePicker;
 
@@ -83,18 +79,3 @@ it('falls back to the stock picker and reports when Filament markup changes', fu
 
     Exceptions::assertReported(fn (LogicException $e) => str_contains($e->getMessage(), 'markup Filament no longer renders'));
 });
-
-function renderField(DateTimePicker $field): string
-{
-    $field->container(Schema::make(new class extends Component implements HasForms
-    {
-        use InteractsWithForms;
-
-        public function render(): string
-        {
-            return '<div></div>';
-        }
-    })->statePath('data'));
-
-    return $field->toHtml();
-}
